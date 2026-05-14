@@ -8,6 +8,11 @@ class GeneralPackages(models.Model):
      destination=models.CharField(max_length=100)
      days=models.IntegerField(default=1)
      photo=models.ImageField(upload_to='packages_images/',null=True, blank=True)
+     attractions = models.ManyToManyField(
+          'Attraction',
+          through='PackagesAttraction',
+          related_name='packages'
+     )
 
 class CustomPackages(models.Model):
      departureDate=models.DateField()
@@ -20,7 +25,7 @@ class Attraction(models.Model):
      name=models.CharField(max_length=100)
      location=models.CharField(max_length=100)
 class PackagesAttraction(models.Model):
-    day=models.DateField()
+    day=models.PositiveIntegerField()
     attraction=models.ForeignKey(Attraction,on_delete=models.CASCADE)
     package=models.ForeignKey(GeneralPackages,on_delete=models.CASCADE)
 class Client(AbstractUser):
