@@ -119,7 +119,7 @@ class MessageForm(forms.ModelForm):
 
 
 class ReviewForm(forms.ModelForm):
-    # Fusha ekstra — vijnë nga user-i i loguar, nuk ruhen në model
+
     first_name = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={
@@ -165,7 +165,7 @@ class ReviewForm(forms.ModelForm):
 
     class Meta:
         model = Review
-        fields = ['comment', 'organization', 'staff', 'price']  # ✅ vetëm fushat e modelit
+        fields = ['comment', 'organization', 'staff', 'price']
         widgets = {
             'comment': forms.Textarea(attrs={
                 'placeholder': 'Your review...',
