@@ -85,20 +85,7 @@ class AttractionForm(forms.ModelForm):
         }
 
 
-class PackageAttractionForm(forms.ModelForm):
-    class Meta:
-        model = PackagesAttraction
-        fields = ['attraction', 'day_number']
 
-        widgets = {
-            'day_number': forms.NumberInput(attrs={
-                'class': 'form-control'
-            }),
-
-            'attraction': forms.Select(attrs={
-                'class': 'form-control'
-            })
-        }
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
