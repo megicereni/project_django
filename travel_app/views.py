@@ -8,10 +8,8 @@ from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, PackageAttractionForm, MessageForm, ReviewForm
+from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, MessageForm, ReviewForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
-
-Message
 
 
 class StaffRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
@@ -76,22 +74,14 @@ class AttractionCreateView(StaffRequiredMixin, CreateView):
     form_class = AttractionForm
 
 
-class PackageAttractionCreateView(StaffRequiredMixin, CreateView):
-    model = PackagesAttraction
-    form_class = PackageAttractionForm
 
-    def dispatch(self, request, *args, **kwargs):
-        self.package = get_object_or_404(GeneralPackages, pk=kwargs['package_pk'])
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        form.instance.package_id = self.kwargs['package_pk']
-        return super().form_valid(form)
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        form.fields['attraction'].queryset = Attraction.objects.all()
-        return form
+def add_itinerary(request, package_pk):
+    package = get_object_or_404(GeneralPackages, pk=package_pk)
+    days = request.POST.getlist('day[]')
+    attractions = request.POST.getlist('attraction[]')
+    for day, attraction_id in zip(days, attractions):
+        if day and attraction_id: PackagesAttraction.objects.create( package=package, attraction_id=attraction_id, day=day )
+        return redirect('package_detail', pk=package.pk)
 
 
 class BookingListView(ListView):
