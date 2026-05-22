@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container mt-5">
+
+    <h3>Reply Message</h3>
+
+    <div class="card p-3 mb-3">
+        <p><strong>From:</strong> {{ object.user.name}}</p>
+        <p><strong>Message:</strong> {{ object.message }}</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.responseMessage }}
+
+        <button type="submit" class="btn btn-success mt-3">
+            Send Reply
+        </button>
+
+    </form>
+
+</div>
+</body>
+</html>
