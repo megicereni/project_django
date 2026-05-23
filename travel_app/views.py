@@ -26,6 +26,19 @@ class GeneralPackageCreateView(StaffRequiredMixin, CreateView):
     # template_name=
     def form_valid(self, form):
         response = super().form_valid(form)
+        package = self.object
+
+        days = self.request.POST.getlist('day[]')
+        attractions = self.request.POST.getlist('attraction[]')
+
+        for day, attraction_id in zip(days, attractions):
+            if day and attraction_id:
+                PackagesAttraction.objects.create(
+                    package=package,
+                    attraction_id=attraction_id,
+                    day=day
+                )
+
         messages.success(self.request, "Successfully created package")
         return response
 
@@ -72,6 +85,9 @@ class GeneralPackageDeleteView(StaffRequiredMixin, DeleteView):
 class AttractionCreateView(StaffRequiredMixin, CreateView):
     model = Attraction
     form_class = AttractionForm
+    def get_success_url(self):
+        messages.success(self.request, "Successfully deleted package")
+        return reverse_lazy('manage_packages')
 
 
 
