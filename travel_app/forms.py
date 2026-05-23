@@ -123,58 +123,55 @@ class MessageForm(forms.ModelForm):
             'body': 'Message'
         }
 
-
 class ReviewForm(forms.ModelForm):
 
-    first_name = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={
-            'readonly': 'readonly',
-            'placeholder': 'First Name'
-        })
-    )
-    last_name = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={
-            'readonly': 'readonly',
-            'placeholder': 'Last Name'
-        })
-    )
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={
-            'readonly': 'readonly',
-            'placeholder': 'Email'
-        })
-    )
-
-    organization = forms.ChoiceField(choices=[
-        ('', 'Organization'),
-        ('excellent', 'Excellent'),
-        ('good', 'Good'),
-        ('average', 'Average'),
-        ('poor', 'Poor'),
-    ])
-    staff = forms.ChoiceField(choices=[
-        ('', 'Staff'),
-        ('excellent', 'Excellent'),
-        ('good', 'Good'),
-        ('average', 'Average'),
-        ('poor', 'Poor'),
-    ])
-    price = forms.ChoiceField(choices=[
-        ('', 'Price'),
-        ('excellent', 'Excellent'),
-        ('good', 'Good'),
-        ('average', 'Average'),
-        ('poor', 'Poor'),
-    ])
-
     class Meta:
+
         model = Review
-        fields = ['comment', 'organization', 'staff', 'price']
+
+        exclude = ['user']
+
         widgets = {
-            'comment': forms.Textarea(attrs={
-                'placeholder': 'Your review...',
-                'rows': 5
-            })
+
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'First Name',
+            }),
+
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Last Name',
+            }),
+
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Email',
+            }),
+
+            'review': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Your review',
+            }),
+
+            'organization': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+
+            'staff': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+
+            'price': forms.Select(attrs={
+                'class': 'form-control',
+            }),
         }
+
+    def clean_review(self):
+
+        if len(self.cleaned_data['review']) < 10:
+
+            raise forms.ValidationError(
+                "Review must contain at least 10 characters")
+
+        return self.cleaned_data['review']

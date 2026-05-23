@@ -194,70 +194,62 @@ def my_reviews(request):
     return render(request, 'travel_app/my_reviews.html', {'reviews': reviews})
 
 
-@login_required
-def add_review(request, package_pk):
-    package = get_object_or_404(CustomPackages, pk=package_pk)
+class ReviewCreateView(LoginRequiredMixin, CreateView):
+    model = Review
+    form_class = ReviewForm
 
-    # Check if user has an approved booking for this package
-    has_confirmed = Booking.objects.filter(
-        user=request.user, package=package, status='approved'
-    ).exists()
-    if not has_confirmed:
-        messages.error(request, 'You must have an approved booking to leave a review.')
-        return redirect('package_detail', pk=package_pk)
+    def form_valid(self, form):
 
-    # Check if user already left a review
-    already_reviewed = Review.objects.filter(user=request.user, package=package).exists()
-    if already_reviewed:
-        messages.warning(request, 'You have already reviewed this package.')
-        return redirect('package_detail', pk=package_pk)
+        form.instance.user = self.request.user
 
-    if request.method == 'POST':
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.user = request.user
-            review.package = package
-            review.save()
-            messages.success(request, 'Review posted successfully!')
-            return redirect('package_detail', pk=package_pk)
-    else:
-        # Pre-fill fields from logged-in user
-        form = ReviewForm(initial={
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name,
-            'email': request.user.email,
-        })
+        response = super().form_valid(form)
 
-    return render(request, 'travel_app/review_form.html', {'form': form, 'package': package})
+        messages.success(self.request, "Successfully created review")
+
+        return response
+
+    def form_invalid(self, form):
+
+        messages.error(self.request, "Review is not created successfully")
+
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+
+        return reverse_lazy('home')
 
 
-@login_required
-def edit_review(request, pk):
-    review = get_object_or_404(Review, pk=pk, user=request.user)
+class ReviewUpdateView(LoginRequiredMixin, UpdateView):
+    model = Review
+    form_class = ReviewForm
 
-    if request.method == 'POST':
-        form = ReviewForm(request.POST, instance=review)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Review updated successfully!')
-            return redirect('my_reviews')
-    else:
-        form = ReviewForm(instance=review)
+    def form_valid(self, form):
 
-    return render(request, 'travel_app/review_form.html', {'form': form, 'package': review.package})
+        response = super().form_valid(form)
 
+        messages.success(self.request, "Successfully updated review")
 
-@login_required
-def delete_review(request, pk):
-    review = get_object_or_404(Review, pk=pk, user=request.user)
-    if request.method == 'POST':
-        review.delete()
-        messages.success(request, 'Review deleted successfully!')
-        return redirect('my_reviews')
-    return render(request, 'travel_app/review_delete_confirm.html', {'review': review})
+        return response
+
+    def form_invalid(self, form):
+
+        messages.error(self.request, "Review is not updated successfully")
+
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+
+        return reverse_lazy('home')
 
 
+class ReviewDeleteView(LoginRequiredMixin, DeleteView):
+    model = Review
+
+    def get_success_url(self):
+
+        messages.success(self.request, "Successfully deleted review")
+
+        return reverse_lazy('home')
 # ── MESAZHET ────────────────────────────────────────────
 @login_required
 def my_messages(request):
@@ -284,3 +276,17 @@ def send_message(request):
         })
 
     return render(request, 'travel_app/send_message.html', {'form': form})
+#per review te userit te loguar
+class ReviewListView(LoginRequiredMixin, ListView):
+
+    model = Review
+
+    template_name = 'review/review_list.html'
+
+    context_object_name = 'reviews'
+
+    def get_queryset(self):
+
+        return Review.objects.filter(
+            user=self.request.user
+        )

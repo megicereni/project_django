@@ -20,3 +20,20 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+path(
+    'review/create/',
+    ReviewCreateView.as_view(),
+    name='review_create'
+),
+
+path(
+    'review/update/<int:pk>/',
+    ReviewUpdateView.as_view(),
+    name='review_update'
+),
+
+path(
+    'review/delete/<int:pk>/',
+    ReviewDeleteView.as_view(),
+    name='review_delete'
+),

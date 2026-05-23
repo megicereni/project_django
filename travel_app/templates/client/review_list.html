@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review_list</title>
+</head>
+<body>
+{% for review in reviews %}
+
+<h3>{{ review.first_name }}</h3>
+
+<p>{{ review.review }}</p>
+
+<a href="{% url 'review_update' review.id %}">
+    Update
+</a>
+
+<a href="{% url 'review_delete' review.id %}">
+    Delete
+</a>
+
+{% endfor %}
+
+</body>
+</html>

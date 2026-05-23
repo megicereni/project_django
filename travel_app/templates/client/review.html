@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review</title>
+</head>
+<body>
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Post Review
+    </button>
+
+</form>
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Update Review
+    </button>
+
+</form>
+<form method="POST">
+
+    {% csrf_token %}
+
+    <h2>Delete Review?</h2>
+
+    <button type="submit">
+        Delete
+    </button>
+
+</form>
+
+</body>
+</html>
