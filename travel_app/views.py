@@ -22,8 +22,7 @@ class StaffRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
 class GeneralPackageCreateView(StaffRequiredMixin, CreateView):
     model = GeneralPackages
     form_class = GeneralPackageForm
-
-    # template_name=
+    template_name= "admin/manage_packages.html"
     def form_valid(self, form):
         response = super().form_valid(form)
         package = self.object
@@ -53,8 +52,7 @@ class GeneralPackageCreateView(StaffRequiredMixin, CreateView):
 class CustomPackageCreateView(StaffRequiredMixin, CreateView):
     model = CustomPackages
     form_class = CustomPackageForm
-
-    # template_name=
+    template_name="admin/custom_package.html"
     def dispatch(self, request, *args, **kwargs):
         self.general_packages_id = kwargs['pk']
         self.package = GeneralPackages.objects.get(pk=self.general_packages_id)
@@ -72,7 +70,7 @@ class CustomPackageCreateView(StaffRequiredMixin, CreateView):
 class CustomPackageUpdateView(StaffRequiredMixin, UpdateView):
     model = CustomPackages
     form_class = CustomPackageForm
-
+    template_name = "admin/custom_package.html"
 
 class GeneralPackageDeleteView(StaffRequiredMixin, DeleteView):
     model = GeneralPackages
@@ -89,21 +87,17 @@ class AttractionCreateView(StaffRequiredMixin, CreateView):
         messages.success(self.request, "Successfully deleted package")
         return reverse_lazy('manage_packages')
 
-
-
-def add_itinerary(request, package_pk):
-    package = get_object_or_404(GeneralPackages, pk=package_pk)
-    days = request.POST.getlist('day[]')
-    attractions = request.POST.getlist('attraction[]')
-    for day, attraction_id in zip(days, attractions):
-        if day and attraction_id: PackagesAttraction.objects.create( package=package, attraction_id=attraction_id, day=day )
-        return redirect('package_detail', pk=package.pk)
-
+class ResponseMessageView(StaffRequiredMixin,CreateView):
+    model = Message
+    template_name = "admin/reply_message.html"
+    def get_success_url(self):
+        messages.success(self.request, "Successfully created message")
+        return reverse_lazy('manage_packages')
 
 class BookingListView(ListView):
     model = Booking
     context_object_name = 'bookings'
-    # template_name=
+    template_name="admin/booking_list.html"
     ordering = ['-created_at']
 
 
@@ -111,10 +105,7 @@ class PaymentListView(ListView):
     model = Payment
     context_object_name = 'payments'
     ordering = ['-created_at']
-
-
-#     template_name=
-
+    template_name="admin/payment_list.html"
 
 @login_required
 def book_package(request, pk):
