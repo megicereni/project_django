@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -27,16 +26,6 @@
             <ul class="navbar-nav mx-auto mt-3 gap-3">
 
 
-                {% if not user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link nav-link1" href="about_us.html">About us</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link nav-link1" href="blog.html">Blog</a>
-                </li>
-
-                {% endif %}
                 {% if user.is_authenticated and not user.is_staff %}
 
                 <li class="nav-item">
@@ -50,19 +39,19 @@
                 {% endif %}
                 {% if user.is_staff %}
                 <li class="nav-item">
-                    <a class="nav-link nav-link1" href="/admin/packages/">Manage Packages</a>
+                    <a class="nav-link nav-link1" href="{% url 'manage_package' %}">Manage Packages</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link nav-link1" href="/admin/bookings/">Bookings</a>
+                    <a class="nav-link nav-link1" href="{% url 'booking_list' %}">Bookings</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link nav-link1" href="/admin/payments/">Payments</a>
+                    <a class="nav-link nav-link1" href="{% url 'payment_list' %}">Payments</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link nav-link1" href="/admin/messages/">Messages</a>
+                    <a class="nav-link nav-link1" href="{% url 'messages_list'}">Messages</a>
                 </li>
 
                 {% endif %}
@@ -86,5 +75,6 @@
 
     </div>
 </nav>
+{% block content %}{% endblock %}
 </body>
 </html>

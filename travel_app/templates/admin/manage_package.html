@@ -60,7 +60,7 @@
     </div>
 
     <!-- FORM -->
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST"  enctype="multipart/form-data" >
         {% csrf_token %}
 
         <div class="card shadow-sm p-4">
@@ -121,15 +121,15 @@
 
             <div class="col-md-3">
                 <input type="number"
-                       name="day[]"
+                       name="day"
                        class="form-control"
                        placeholder="Day (e.g. 1)">
             </div>
 
             <div class="col-md-7">
-                <select name="attraction[]" class="form-select">
+                <select name="attraction" class="form-select" required>
                     <option value="">Select attraction</option>
-                    {% for a in attractions %}
+                    {% for a in attraction %}
                         <option value="{{ a.id }}">{{ a.name }}</option>
                     {% endfor %}
                 </select>
@@ -144,25 +144,22 @@
         </div>
 
     </div>
-    <button type="submit" class="btn btn-success mt-3">
-        Save Itinerary
-    </button>
 
     <!-- ADD BUTTON -->
-    <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-row">
-        + Add Attraction
-    </button>
+
 </div>
 
 
             <div class="d-flex justify-content-between mt-4">
 
-                <a href="{% url 'package_list' %}" class="btn btn-secondary">
-                    Cancel
-                </a>
+
 
                 <button type="submit" class="btn btn-success">
-                    Create Package
+                      {% if form.instance.pk %}
+                         Update Package
+                      {% else %}
+                         Create Package
+                      {% endif %}
                 </button>
 
             </div>
@@ -200,9 +197,7 @@
                         <td>{{ p.days }}</td>
 
                         <td>
-                            <a href="{% url 'package_update' p.id %}" class="btn btn-sm btn-warning">
-                                Edit
-                            </a>
+
 
                             <button class="btn btn-sm btn-danger"
                                     data-bs-toggle="modal"
@@ -244,11 +239,7 @@
                     Cancel
                 </button>
 
-                <form method="POST" action="{% url 'package_delete' p.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">
-                        Delete
-                    </button>
+
 
                 </form>
 

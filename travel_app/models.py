@@ -56,7 +56,7 @@ class Booking(models.Model):
 class Message(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     message = models.TextField()
-    responseMessage = models.TextField()
+    responseMessage = models.TextField(blank=True)
 
 
 class Review(models.Model):

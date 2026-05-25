@@ -15,25 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('',include("travel_app.urls"))
 ]
-path(
-    'review/create/',
-    ReviewCreateView.as_view(),
-    name='review_create'
-),
-
-path(
-    'review/update/<int:pk>/',
-    ReviewUpdateView.as_view(),
-    name='review_update'
-),
-
-path(
-    'review/delete/<int:pk>/',
-    ReviewDeleteView.as_view(),
-    name='review_delete'
-),

@@ -1,4 +1,4 @@
-from django.forms import forms
+from django import forms
 from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review
 
 
@@ -115,21 +115,21 @@ class BookingForm(forms.ModelForm):
             raise forms.ValidationError('Number of people must be at least 1.')
         return numberOfPeople
 
-class MessageForm(forms.ModelForm):
-    class Meta:
-        model = Message
-        fields = ['name', 'email', 'body']
-        widgets = {
-            'name': forms.TextInput(attrs={'readonly': 'readonly'}),
-            'email': forms.EmailInput(attrs={'readonly': 'readonly'}),
-            'body': forms.Textarea(attrs={
-                'placeholder': 'Write your message here...',
-                'rows': 5
-            })
-        }
-        labels = {
-            'body': 'Message'
-        }
+# class MessageForm(forms.ModelForm):
+#     class Meta:
+#         model = Message
+#         fields = ['name', 'email', 'body']
+#         widgets = {
+#             'name': forms.TextInput(attrs={'readonly': 'readonly'}),
+#             'email': forms.EmailInput(attrs={'readonly': 'readonly'}),
+#             'body': forms.Textarea(attrs={
+#                 'placeholder': 'Write your message here...',
+#                 'rows': 5
+#             })
+#         }
+#         labels = {
+#             'body': 'Message'
+#         }
 
 class ReviewForm(forms.ModelForm):
 

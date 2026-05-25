@@ -67,7 +67,13 @@
 
     <div class="form-card">
 
-        <h2 class="mb-3">Create Custom Package</h2>
+        <h2 class="mb-3">
+    {% if form.instance.pk %}
+        Edit Custom Package
+    {% else %}
+        Create Custom Package
+    {% endif %}
+     </h2>
 
         <!-- GENERAL PACKAGE INFO -->
         <div class="package-box">
@@ -120,8 +126,12 @@
                     </a>
 
                     <button type="submit" class="btn btn-success">
-                        Save Custom Package
-                    </button>
+    {% if form.instance.pk %}
+        Update Custom Package
+    {% else %}
+        Save Custom Package
+    {% endif %}
+                </button>
 
                 </div>
 
