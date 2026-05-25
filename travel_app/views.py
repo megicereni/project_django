@@ -110,16 +110,15 @@ class PaymentListView(ListView):
 class BookingCreateView(LoginRequiredMixin, CreateView):
     model = Booking
     form_class = BookingForm
-
+    template_name = 'booking_list.html'
+    context_object_name = 'bookings'
     def form_valid(self, form):
 
         form.instance.client = self.request.user
-
         form.instance.totalPrice = (
             form.instance.numberOfPeople *
             form.instance.package.price
         )
-
         response = super().form_valid(form)
 
         Payment.objects.create(
@@ -148,17 +147,11 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
 
         return reverse_lazy('booking_list')
 
-
-        template_name = 'booking_list.html'
-
-        context_object_name = 'bookings'
-
-        def get_queryset(self):
+    def get_queryset(self):
             return Booking.objects.filter(
                 client=self.request.user
             )
-
-        class CancelBookingView(LoginRequiredMixin, UpdateView):
+class CancelBookingView(LoginRequiredMixin, DeleteView):
             model = Booking
 
             fields = []
@@ -177,7 +170,7 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
 
                 return redirect('booking_list')
 
-class RefundBookingView(LoginRequiredMixin, UpdateView):
+class RefundBookingView(LoginRequiredMixin, DeleteView):
 
     model = Payment
 
