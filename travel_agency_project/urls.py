@@ -16,12 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from travel_app.views import (
+    ReviewCreateView,
+    ReviewUpdateView,
+    ReviewDeleteView,
+    ReviewListView,
+)
+from travel_app.views import (
+    BookingCreateView,
+    BookingListView,
+    CancelBookingView,
+    RefundBookingView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 path(
-    'review/create/',
+    'review/create/<int:pk>/',
     ReviewCreateView.as_view(),
     name='review_create'
 ),
@@ -37,3 +49,30 @@ path(
     ReviewDeleteView.as_view(),
     name='review_delete'
 ),
+
+urlpatterns = [
+
+    path(
+        'booking/create/',
+        BookingCreateView.as_view(),
+        name='booking_create'
+    ),
+
+    path(
+        'booking/list/',
+        BookingListView.as_view(),
+        name='booking_list'
+    ),
+
+    path(
+        'booking/cancel/<int:pk>/',
+        CancelBookingView.as_view(),
+        name='booking_cancel'
+    ),
+
+    path(
+        'booking/refund/<int:pk>/',
+        RefundBookingView.as_view(),
+        name='booking_refund'
+    ),
+]
