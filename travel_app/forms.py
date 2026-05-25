@@ -86,27 +86,43 @@ class AttractionForm(forms.ModelForm):
 
 
 
+
+
 class BookingForm(forms.ModelForm):
+
     class Meta:
+
         model = Booking
-        fields = ['numberOfPeople']
+
+        exclude = [
+            'client',
+            'totalPrice',
+            'status'
+        ]
+
         widgets = {
+
+            'package': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+
             'numberOfPeople': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter number of people',
                 'min': 1,
-            })
-        }
-        labels = {
-            'numberOfPeople': 'Number of People'
+            }),
         }
 
     def clean_numberOfPeople(self):
-        numberOfPeople = self.cleaned_data['numberOfPeople']
-        if numberOfPeople < 1:
-            raise forms.ValidationError('Number of people must be at least 1.')
-        return numberOfPeople
 
+        number = self.cleaned_data['numberOfPeople']
+
+        if number < 1:
+
+            raise forms.ValidationError(
+                "Number of people cannot be less than 1"
+            )
+
+        return number
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
