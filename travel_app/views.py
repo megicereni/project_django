@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, MessageForm, ReviewForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
-
+from .forms import BookingForm
 
 class StaffRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
     raise_exception = True
@@ -107,60 +107,102 @@ class PaymentListView(ListView):
     ordering = ['-created_at']
     template_name="admin/payment_list.html"
 
-@login_required
-def book_package(request, pk):
-    package = get_object_or_404(CustomPackages, pk=pk)
+class BookingCreateView(LoginRequiredMixin, CreateView):
+    model = Booking
+    form_class = BookingForm
 
-    existing = Booking.objects.filter(user=request.user, package=package).first()
-    if existing:
-        messages.warning(request, 'You have already booked this package.')
-        return redirect('my_bookings')
+    def form_valid(self, form):
 
-    if request.method == 'POST':
-        booking = Booking.objects.create(
-            user=request.user,
-            package=package,
-            status='pending'
+        form.instance.client = self.request.user
+
+        form.instance.totalPrice = (
+            form.instance.numberOfPeople *
+            form.instance.package.price
         )
-        # Create Payment linked to this booking
+
+        response = super().form_valid(form)
+
         Payment.objects.create(
-            booking=booking,
-            totalPrice=package.price,
+            booking=self.object,
+            amount=self.object.totalPrice,
             refundedAmount=0
         )
-        messages.success(request, 'Booking completed! Payment is due within 24 hours.')
-        return redirect('my_bookings')
 
-    return render(request, 'travel_app/book_confirm.html', {'package': package})
+        messages.success(
+            self.request,
+            "Booking created successfully"
+        )
+
+        return response
+
+    def form_invalid(self, form):
+
+        messages.error(
+            self.request,
+            "Booking was not created"
+        )
+
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+
+        return reverse_lazy('booking_list')
 
 
-@login_required
-def my_bookings(request):
-    bookings = (Booking.objects.filter(
-        user=request.user
-    ).select_related('package', 'payment').order_by('-created_at'))
-    return render(request, 'travel_app/my_bookings.html', {'bookings': bookings})
+        template_name = 'booking_list.html'
 
-@login_required
-def cancel_booking(request, pk):
-    booking = get_object_or_404(Booking, pk=pk, user=request.user)
+        context_object_name = 'bookings'
 
-    if booking.status != 'approved':
-        messages.error(request, 'Only approved bookings can be cancelled.')
-        return redirect('my_bookings')
+        def get_queryset(self):
+            return Booking.objects.filter(
+                client=self.request.user
+            )
 
-    if request.method == 'POST':
-        payment = Payment.objects.filter(booking=booking).first()
-        if payment:
-            payment.refundedAmount = 0.5 * booking.totalPrice
-            payment.save()
-        booking.status = 'canceled'
+        class CancelBookingView(LoginRequiredMixin, UpdateView):
+            model = Booking
+
+            fields = []
+
+            def post(self, request, *args, **kwargs):
+                booking = self.get_object()
+
+                booking.status = 'rejected'
+
+                booking.save()
+
+                messages.success(
+                    request,
+                    "Booking cancelled successfully"
+                )
+
+                return redirect('booking_list')
+
+class RefundBookingView(LoginRequiredMixin, UpdateView):
+
+    model = Payment
+
+    fields = []
+
+    def post(self, request, *args, **kwargs):
+
+        payment = self.get_object()
+
+        payment.refundedAmount = payment.amount
+
+        payment.save()
+
+        booking = payment.booking
+
+        booking.status = 'rejected'
+
         booking.save()
-        messages.success(request, 'Booking cancelled. A 50% refund will be processed.')
-        return redirect('my_bookings')
 
-    return render(request, 'travel_app/cancel_confirm.html', {'booking': booking})
+        messages.success(
+            request,
+            "Refund completed successfully"
+        )
 
+        return redirect('booking_list')
 def confirm_booking(request, pk):
     booking = get_object_or_404(Booking, pk=pk)
     if booking.numberOfPeople > booking.package.limitNumberOfPeople:
@@ -171,6 +213,8 @@ def confirm_booking(request, pk):
     booking.save()
     return redirect('bookings_list')
 
+    class BookingListView(LoginRequiredMixin, ListView):
+        model = Booking
 
 def cancel_booking(request, pk):
     booking = get_object_or_404(Booking, pk=pk)
