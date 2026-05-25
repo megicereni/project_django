@@ -67,7 +67,15 @@ class CustomPackageForm(forms.ModelForm):
             raise forms.ValidationError('Arrival date cannot be before than departure date')
         return arrivalDate
 
-
+class ResponseMessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['responseMessage']
+        widgets ={
+            'responseMessage': forms.TextInput(attrs={
+                'class': 'form-control',
+            })
+        }
 class AttractionForm(forms.ModelForm):
     class Meta:
         model = Attraction
