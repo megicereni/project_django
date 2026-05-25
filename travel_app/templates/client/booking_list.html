@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>booking list</title>
+</head>
+<body>
+{% for booking in bookings %}
+
+<div class="card p-4 mb-4">
+
+    <h2>
+        {{ booking.package.package.title }}
+    </h2>
+
+    <p>
+        Departure:
+        {{ booking.package.departureDate }}
+    </p>
+
+    <p>
+        Arrival:
+        {{ booking.package.arrivalDate }}
+    </p>
+
+    <p>
+        People:
+        {{ booking.numberOfPeople }}
+    </p>
+
+    <p>
+        Total Price:
+        €{{ booking.totalPrice }}
+    </p>
+
+    <p>
+        Status:
+        {{ booking.status }}
+    </p>
+
+    <!-- CANCEL BUTTON -->
+
+    <form method="POST"
+          action="{% url 'booking_cancel' booking.id %}">
+
+        {% csrf_token %}
+
+        <button type="submit"
+                class="btn btn-danger">
+
+            Cancel Booking
+
+        </button>
+
+    </form>
+
+    <br>
+
+    <!-- REFUND BUTTON -->
+
+    <form method="POST"
+          action="{% url 'booking_refund' booking.payment_set.first.id %}">
+
+        {% csrf_token %}
+
+        <button type="submit"
+                class="btn btn-warning">
+
+            Refund Payment
+
+        </button>
+
+    </form>
+
+</div>
+
+{% endfor %}
+</body>
+</html>
