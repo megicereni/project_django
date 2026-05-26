@@ -5,7 +5,7 @@ from travel_app.models import GeneralPackages, CustomPackages, Attraction, Packa
 class GeneralPackageForm(forms.ModelForm):
     class Meta:
         model = GeneralPackages
-        fields = '__all__'
+        fields = ['title', 'description', 'price', 'destination', 'days', 'photo']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control',
                                             'placeholder': 'Enter Package Title', }),
@@ -30,7 +30,7 @@ class GeneralPackageForm(forms.ModelForm):
 class CustomPackageForm(forms.ModelForm):
     class Meta:
         model = CustomPackages
-        fields = '__all__'
+        exclude=['package']
         widgets = {
             'departureDate': forms.DateInput(
                 attrs={

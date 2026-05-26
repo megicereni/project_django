@@ -1,10 +1,10 @@
 from datetime import timezone
-
+from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.context_processors import request
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import CreateView, UpdateView, DeleteView, ListView,DetailView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -17,26 +17,96 @@ class StaffRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
     def test_func(self):
         return self.request.user.is_staff
 
+class GeneralPackageListView(ListView):
+    model = GeneralPackages
+    template_name = "admin/package_list.html"
+    context_object_name = "packages"
+    ordering = ["-id"]
 
-class GeneralPackageCreateView(CreateView):
+    def get_queryset(self):
+        # Start with the normal queryset from ListView:
+        # GeneralPackages.objects.all().order_by("-id")
+        queryset = super().get_queryset()
+
+        # Read the search text from the URL query string.
+        # Example: /packages/?q=Paris
+        search = self.request.GET.get("q", "").strip()
+
+        # If the user typed something, filter by title, destination, or description.
+        # Q objects let us use OR conditions in Django queries.
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(destination__icontains=search) |
+                Q(description__icontains=search)
+            )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        # Add the search text back to the template so the input keeps its value
+        # after the page refreshes.
+        context = super().get_context_data(**kwargs)
+        context["search"] = self.request.GET.get("q", "").strip()
+        return context
+class GeneralPackageDetailView(DetailView):
+    model = GeneralPackages
+    template_name = "admin/package_detail.html"
+    context_object_name = "package"
+
+    def get_context_data(self, **kwargs):
+        # The main package is already available as "package".
+        # Here we add its itinerary rows from the through model PackagesAttraction.
+        context = super().get_context_data(**kwargs)
+        context["itinerary"] = PackagesAttraction.objects.filter(
+            package=self.object
+        ).select_related("attraction").order_by("day")
+        return context
+class GeneralPackageFormMixin:
     model = GeneralPackages
     form_class = GeneralPackageForm
-    template_name= "admin/manage_package.html"
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        package = self.object
+    template_name = "admin/package_form.html"
 
+    def save_itinerary(self, package):
+        # The HTML form sends many "day" values and many "attraction" values.
+        # getlist() returns all of them as Python lists.
         days = self.request.POST.getlist("day")
         attractions = self.request.POST.getlist("attraction")
 
+        # When editing, remove old itinerary rows first.
+        # Then we recreate the rows from the submitted form values.
+        PackagesAttraction.objects.filter(package=package).delete()
+
+        # zip() pairs each day with the attraction selected on the same row.
+        # Empty rows are skipped so students/users can leave the last row blank.
         for day, attraction_id in zip(days, attractions):
+            if not day or not attraction_id:
+                continue
             PackagesAttraction.objects.create(
                 package=package,
                 attraction_id=attraction_id,
                 day=day
             )
 
+    def get_context_data(self, **kwargs):
+        # The form template needs all attractions so it can build the dropdown.
+        context = super().get_context_data(**kwargs)
+        context["attractions"] = Attraction.objects.all()
 
+        # self.object exists when editing, but it is None when creating.
+        # For edit pages, send the existing itinerary so the form is pre-filled.
+        if self.object:
+            context["itinerary"] = PackagesAttraction.objects.filter(
+                package=self.object
+            ).select_related("attraction").order_by("day")
+        return context
+
+class GeneralPackageCreateView(GeneralPackageFormMixin, CreateView):
+    def form_valid(self, form):
+        # First let Django save the GeneralPackages object.
+        response = super().form_valid(form)
+
+        # Then save the itinerary rows connected to that new package.
+        self.save_itinerary(self.object)
         messages.success(self.request, "Successfully created package")
         return response
 
@@ -45,52 +115,77 @@ class GeneralPackageCreateView(CreateView):
         return super().form_invalid(form)
 
     def get_success_url(self):
-        return reverse_lazy('home')
+        # After creating, send the user to the detail page for the new package.
+        return reverse_lazy('custom_create', kwargs={'pk': self.object.pk})
+
+class GeneralPackageUpdateView(GeneralPackageFormMixin, UpdateView):
+    def form_valid(self, form):
+        # Save changes to the main package fields first.
+        response = super().form_valid(form)
+
+        # Then replace the old itinerary rows with the submitted rows.
+        self.save_itinerary(self.object)
+        messages.success(self.request, "Successfully updated package")
+        return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Package is not updated successfully")
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        # After editing, return to the same package's detail page.
+        return reverse_lazy('package_detail', kwargs={'pk': self.object.pk})
+
+class GeneralPackageDeleteView(DeleteView):
+    model = GeneralPackages
+
+    def get_success_url(self):
+        messages.success(self.request, "Successfully deleted package")
+        return reverse_lazy('package_list')
+
+class CustomPackageCreateView(CreateView):
+    model = CustomPackages
+    form_class = CustomPackageForm
+    template_name="admin/custom_package.html"
+    def dispatch(self, request, *args, **kwargs):
+        self.package = GeneralPackages.objects.get(pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['attraction'] = Attraction.objects.all()
+        context['general'] = self.package
+        return context
+    def form_valid(self, form):
+        form.instance.package = self.package
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('package_list')
+
+
+class CustomPackageUpdateView(UpdateView):
+    model = CustomPackages
+    form_class = CustomPackageForm
+    template_name = "admin/custom_package.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['general'] = self.object.package  # lidhja ekzistuese
         return context
 
+    def get_success_url(self):
+        return reverse_lazy('package_detail', kwargs={'pk': self.object.pk})
 
-# class CustomPackageCreateView(StaffRequiredMixin, CreateView):
-#     model = CustomPackages
-#     form_class = CustomPackageForm
-#     template_name="admin/custom_package.html"
-#     def dispatch(self, request, *args, **kwargs):
-#         self.general_packages_id = kwargs['pk']
-#         self.package = GeneralPackages.objects.get(pk=self.general_packages_id)
-#         return super().dispatch(request, *args, **kwargs)
+
 #
-#     def form_valid(self, form):
-#         response = super().form_valid(form)
-#         messages.success(self.request, "Successfully created package")
-#         return response
-#
-#     def get_success_url(self):
-#         return reverse_lazy('packages_list')
-#
-#
-# class CustomPackageUpdateView(StaffRequiredMixin, UpdateView):
-#     model = CustomPackages
-#     form_class = CustomPackageForm
-#     template_name = "admin/custom_package.html"
-#
-# class GeneralPackageDeleteView(StaffRequiredMixin, DeleteView):
-#     model = GeneralPackages
-#
-#     def get_success_url(self):
-#         messages.success(self.request, "Successfully deleted package")
-#         return reverse_lazy('packages_list')
-#
-#
-# class AttractionCreateView(StaffRequiredMixin, CreateView):
-#     model = Attraction
-#     form_class = AttractionForm
-#     def get_success_url(self):
-#         messages.success(self.request, "Successfully deleted package")
-#         return reverse_lazy('manage_packages')
-#
+class AttractionCreateView(CreateView):
+    model = Attraction
+    form_class = AttractionForm
+    template_name = "admin/attraction.html"
+    def get_success_url(self):
+        messages.success(self.request, "Successfully deleted package")
+        return reverse_lazy('package_list')
+
 # class ResponseMessageView(StaffRequiredMixin,CreateView):
 #     model = Message
 #     template_name = "admin/reply_message.html"
@@ -98,12 +193,12 @@ class GeneralPackageCreateView(CreateView):
 #         messages.success(self.request, "Successfully created message")
 #         return reverse_lazy('manage_packages')
 #
-# class BookingListView(ListView):
-#     model = Booking
-#     context_object_name = 'bookings'
-#     template_name="admin/booking_list.html"
-#     ordering = ['-created_at']
-#
+class BookingListView(ListView):
+    model = Booking
+    context_object_name = 'bookings'
+    template_name="admin/booking_list.html"
+    ordering = ['-created_at']
+
 #
 # class PaymentListView(ListView):
 #     model = Payment
@@ -165,37 +260,38 @@ class GeneralPackageCreateView(CreateView):
 #
 #     return render(request, 'travel_app/cancel_confirm.html', {'booking': booking})
 #
-# def confirm_booking(request, pk):
-#     booking = get_object_or_404(Booking, pk=pk)
-#     if booking.numberOfPeople > booking.package.limitNumberOfPeople:
-#         booking.status = 'canceled'
-#         booking.save()
-#         messages.success(request, "It can be overbooking")
-#     booking.status = 'approved'
-#     booking.save()
-#     return redirect('bookings_list')
+def confirm_booking(request, pk):
+    booking = get_object_or_404(Booking, pk=pk)
+    if booking.numberOfPeople > booking.package.limitNumberOfPeople:
+        booking.status = 'canceled'
+        booking.save()
+        messages.success(request, "It can be overbooking")
+    booking.status = 'approved'
+    booking.save()
+    return redirect('bookings_list')
 #
 #
-# def cancel_booking(request, pk):
-#     booking = get_object_or_404(Booking, pk=pk)
-#     booking.status = 'canceled'
-#     booking.save()
+def cancel_booking(request, pk):
+    booking = get_object_or_404(Booking, pk=pk)
+    booking.status = 'canceled'
+    booking.save()
+    return redirect('booking_list')
 #
 #
-# def refund_booking(request, pk):
-#     booking = get_object_or_404(Booking, pk=pk)
-#     payment = get_object_or_404(Payment, booking=booking)
-#     date = booking.package.departureDate
-#     now = timezone.now().date()
-#     diff = (date - now).days
-#     if booking.status == 'approved' and diff <= 1:
-#         payment.refundedAmount = 0
-#         booking.status = 'canceled'
-#         booking.save()
-#     elif booking.status == 'approved' and diff >= 15:
-#         payment.refundedAmount = 0.5 * booking.totalPrice
-#         booking.status = 'refunded'
-#         booking.save()
+def refund_booking(request, pk):
+    booking = get_object_or_404(Booking, pk=pk)
+    payment = get_object_or_404(Payment, booking=booking)
+    date = booking.package.departureDate
+    now = timezone.now().date()
+    diff = (date - now).days
+    if booking.status == 'approved' and diff <= 1:
+        payment.refundedAmount = 0
+        booking.status = 'canceled'
+        booking.save()
+    elif booking.status == 'approved' and diff >= 15:
+        payment.refundedAmount = 0.5 * booking.totalPrice
+        booking.status = 'refunded'
+        booking.save()
 #
 #
 #

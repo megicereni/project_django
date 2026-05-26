@@ -1,6 +1,8 @@
-{% extends "templates/base.html" %}
+<html>
+<head>
 
-{% block content %}
+</head>
+<body>
 <div class="row justify-content-center">
   <div class="col-lg-8">
     <div class="card shadow-sm">
@@ -14,7 +16,7 @@
 
           <div class="mb-3">
             <label class="form-label">{{ form.name.label }}</label>
-            {{ formname }}
+            {{ form.name }}
             {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
           </div>
           <div class="mb-3">
@@ -23,7 +25,7 @@
             {% if form.location.errors %}<div class="text-danger small">{{ form.location.errors }}</div>{% endif %}
           </div>
             <div class="d-flex justify-content-between">
-            <a href="{% url'packages'%" class="btn btn-outline-secondary">Cancel</a>
+            <a href="{% url 'package_list' %}" class="btn btn-outline-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">Save Movie</button>
           </div>
         </form>
@@ -31,4 +33,6 @@
     </div>
   </div>
 </div>
-{% endblock %}
+</body>
+</html>
+

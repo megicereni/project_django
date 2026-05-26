@@ -1,4 +1,4 @@
-{% extends template/base.html %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,40 +43,61 @@
 
     <h2 class="mb-4">Bookings</h2>
 
-    <div class="row">
+    {% if bookings %}
 
-        {% for b in bookings %}
+        <div class="row">
 
-        <div class="col-md-4 mb-4">
+            {% for b in bookings %}
 
-            <div class="card shadow-sm booking-card p-3">
+                <div class="col-md-4 mb-4">
 
-                <h5>{{ b.client.name }}</h5>
+                    <div class="card shadow-sm booking-card p-3">
 
-                <p class="mb-1">
-                    <strong>Package:</strong> {{ b.package.general_package.title }}
-                </p>
+                        <h5>
+                            {% if b.client %}
+                                {{ b.client.name }}
+                            {% else %}
+                                Unknown Client
+                            {% endif %}
+                        </h5>
 
-                <p class="mb-1">
-                    <strong>People:</strong> {{ b.numberOfPeople }}
-                </p>
+                        <p class="mb-1">
+                            <strong>Package:</strong>
+                            {% if b.package and b.package.general_package %}
+                                {{ b.package.general_package.title }}
+                            {% else %}
+                                No package
+                            {% endif %}
+                        </p>
 
-                <p class="mb-1">
-                    <strong>Total:</strong> ${{ b.totalPrice }}
-                </p>
+                        <p class="mb-1">
+                            <strong>People:</strong> {{ b.numberOfPeople }}
+                        </p>
 
-                <a href="{% url 'booking_detail' b.id %}"
-                   class="btn btn-primary btn-sm mt-3">
-                    View Details
-                </a>
+                        <p class="mb-1">
+                            <strong>Total:</strong> ${{ b.totalPrice }}
+                        </p>
 
-            </div>
+                        <a href="{% url 'booking_detail' b.id %}"
+                           class="btn btn-primary btn-sm mt-3">
+                            View Details
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
 
         </div>
 
-        {% endfor %}
+    {% else %}
 
-    </div>
+        <div class="alert alert-info">
+            No bookings available at the moment.
+        </div>
+
+    {% endif %}
 
 </div>
 

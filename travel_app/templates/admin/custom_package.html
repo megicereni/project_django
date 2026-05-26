@@ -56,11 +56,6 @@
 <body>
 
 <!-- SIDEBAR -->
-<div class="sidebar">
-    <h4>Admin Panel</h4>
-    <hr>
-    <a href="{% url 'package_list' %}">📦 Packages</a>
-</div>
 
 <!-- MAIN -->
 <div class="main">
@@ -121,7 +116,7 @@
                 <!-- BUTTONS -->
                 <div class="d-flex justify-content-between mt-4">
 
-                    <a href="{% url 'package_detail' general.id %}" class="btn btn-secondary">
+                    <a href="{% url 'package_list'  %}" class="btn btn-secondary">
                         Back
                     </a>
 
