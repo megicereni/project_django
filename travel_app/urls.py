@@ -1,6 +1,7 @@
 from django.urls import path
 
 from travel_app import views
+from travel_app.views import ResponseMessageView, BookingDetailView
 
 urlpatterns = [
     # Home page uses the same package list view.
@@ -37,5 +38,11 @@ urlpatterns = [
     path('booking/<int:pk>/confirm',views.confirm_booking, name='booking_confirm'),
     path('booking/<int:pk>/cancel',views.cancel_booking, name='booking_cancel'),
     path('booking/<int:pk>/refund',views.refund_booking, name='booking_refund'),
+
+    path('messages/list',views.MessageListView.as_view(), name='message_list'),
+
+    path("message/<int:pk>/reply/", ResponseMessageView.as_view(), name="message_reply"),
+
+    path("booking/<int:pk>/", BookingDetailView.as_view(), name="booking_detail"),
 
     ]

@@ -72,8 +72,9 @@ class ResponseMessageForm(forms.ModelForm):
         model = Message
         fields = ['responseMessage']
         widgets ={
-            'responseMessage': forms.TextInput(attrs={
+            'responseMessage': forms.Textarea(attrs={
                 'class': 'form-control',
+                'rows':4,
             })
         }
 class AttractionForm(forms.ModelForm):

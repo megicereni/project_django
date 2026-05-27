@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from travel_app.models import GeneralPackages, Attraction, PackagesAttraction, CustomPackages, Client
+from travel_app.models import GeneralPackages, Attraction, PackagesAttraction, CustomPackages, Client, Message, Booking
 from travel_app.views import AttractionCreateView
 
 admin.site.register(GeneralPackages)
@@ -19,3 +19,5 @@ class ClientAdmin(UserAdmin):
         ("Extra Info", {"fields": ("phone",)}),
     )
 admin.site.register(Client, ClientAdmin)
+admin.site.register(Message)
+admin.site.register(Booking)

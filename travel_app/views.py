@@ -8,7 +8,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView, ListView,De
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm
+from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
 
 
@@ -60,7 +60,16 @@ class GeneralPackageDetailView(DetailView):
         context["itinerary"] = PackagesAttraction.objects.filter(
             package=self.object
         ).select_related("attraction").order_by("day")
+        context["custom_packages"] = CustomPackages.objects.filter(
+            package=self.object
+        ).order_by("departureDate")
         return context
+
+class BookingDetailView(DetailView):
+    model = Booking
+    template_name = "admin/booking_detail.html"
+    context_object_name = "booking"
+
 class GeneralPackageFormMixin:
     model = GeneralPackages
     form_class = GeneralPackageForm
@@ -116,7 +125,7 @@ class GeneralPackageCreateView(GeneralPackageFormMixin, CreateView):
 
     def get_success_url(self):
         # After creating, send the user to the detail page for the new package.
-        return reverse_lazy('custom_create', kwargs={'pk': self.object.pk})
+        return reverse_lazy('package_detail', kwargs={'pk': self.object.pk})
 
 class GeneralPackageUpdateView(GeneralPackageFormMixin, UpdateView):
     def form_valid(self, form):
@@ -186,18 +195,28 @@ class AttractionCreateView(CreateView):
         messages.success(self.request, "Successfully deleted package")
         return reverse_lazy('package_list')
 
-# class ResponseMessageView(StaffRequiredMixin,CreateView):
-#     model = Message
-#     template_name = "admin/reply_message.html"
-#     def get_success_url(self):
-#         messages.success(self.request, "Successfully created message")
-#         return reverse_lazy('manage_packages')
-#
+class ResponseMessageView(UpdateView):
+    model = Message
+    form_class = ResponseMessageForm
+    template_name = "admin/reply_message.html"
+
+    def form_valid(self, form):
+        messages.success(self.request, "Reply sent successfully")
+
+        return super().form_valid(form)
+    def get_success_url(self):
+        return reverse_lazy('package_list')
+
 class BookingListView(ListView):
     model = Booking
     context_object_name = 'bookings'
     template_name="admin/booking_list.html"
     ordering = ['-created_at']
+class MessageListView(ListView):
+    model = Message
+    context_object_name = 'messages'
+    template_name="admin/messages_list.html"
+    ordering = ['-id']
 
 #
 # class PaymentListView(ListView):
@@ -268,7 +287,7 @@ def confirm_booking(request, pk):
         messages.success(request, "It can be overbooking")
     booking.status = 'approved'
     booking.save()
-    return redirect('bookings_list')
+    return redirect('booking_list')
 #
 #
 def cancel_booking(request, pk):
