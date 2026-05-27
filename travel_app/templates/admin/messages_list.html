@@ -33,17 +33,10 @@
                 {% for msg in messages %}
 
                     <tr>
-                        <!-- USER -->
-                        <td>
-                            {{ msg.user.username }}
-                        </td>
+                        <td>{{ msg.client.username }}</td>
 
-                        <!-- MESSAGE -->
-                        <td>
-                            {{ msg.message }}
-                        </td>
+                        <td>{{ msg.message }}</td>
 
-                        <!-- STATUS -->
                         <td>
                             {% if msg.responseMessage %}
                                 <span class="badge bg-success">Answered</span>
@@ -52,14 +45,20 @@
                             {% endif %}
                         </td>
 
-                        <!-- ACTION -->
                         <td>
                             <a href="{% url 'message_reply' msg.id %}"
                                class="btn btn-sm btn-primary">
                                 Reply
                             </a>
                         </td>
+                    </tr>
 
+                {% empty %}
+
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            No messages found.
+                        </td>
                     </tr>
 
                 {% endfor %}

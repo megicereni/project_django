@@ -63,8 +63,8 @@
 
                         <p class="mb-1">
                             <strong>Package:</strong>
-                            {% if b.package and b.package.general_package %}
-                                {{ b.package.general_package.title }}
+                            {% if b.package and b.package.package %}
+                                {{ b.package.package.title }}
                             {% else %}
                                 No package
                             {% endif %}
@@ -75,7 +75,11 @@
                         </p>
 
                         <p class="mb-1">
-                            <strong>Total:</strong> ${{ b.totalPrice }}
+                            <strong>Total:</strong> {{ b.totalPrice }}
+                        </p>
+
+                        <p class="mb-1">
+                            <strong>Status:</strong> ${{ b.status }}
                         </p>
 
                         <a href="{% url 'booking_detail' b.id %}"

@@ -17,8 +17,8 @@
 
         <hr>
 
-        <p><strong>Client:</strong> {{ booking.client.name }}</p>
-        <p><strong>Package:</strong> {{ booking.package.general_package.title }}</p>
+        <p><strong>Client:</strong> {{ booking.client.username }}</p>
+        <p><strong>Package:</strong> {{ booking.package.package.title }}</p>
         <p><strong>People:</strong> {{ booking.numberOfPeople }}</p>
         <p><strong>Total Price:</strong> ${{ booking.totalPrice }}</p>
 
@@ -29,10 +29,10 @@
 
         <hr>
 
-        <!-- ACTION BUTTONS -->
+
         <div class="d-flex gap-2">
 
-            <!-- CONFIRM -->
+
             <form method="POST" action="{% url 'booking_confirm' booking.id %}">
                 {% csrf_token %}
                 <button class="btn btn-success">
@@ -40,7 +40,7 @@
                 </button>
             </form>
 
-            <!-- CANCEL -->
+
             <form method="POST" action="{% url 'booking_cancel' booking.id %}">
                 {% csrf_token %}
                 <button class="btn btn-warning">
@@ -48,7 +48,7 @@
                 </button>
             </form>
 
-            <!-- REFUND -->
+
             <form method="POST" action="{% url 'booking_refund' booking.id %}">
                 {% csrf_token %}
                 <button class="btn btn-danger">
