@@ -50,44 +50,35 @@
                     </tr>
                 </thead>
 
-                <tbody>
+               <tbody>
 
-                {% for payment in payments %}
+{% for payment in payments %}
 
-                    <tr>
+    <tr>
+        <td>{{ payment.booking.client.username }}</td>
 
-                        <td>
-                            {{ payment.booking.client.name }}
-                        </td>
+        <td>#{{ payment.booking.id }}</td>
 
-                        <!-- BOOKING -->
-                        <td>
-                            #{{ payment.booking.id }}
-                        </td>
+        <td>${{ payment.amount }}</td>
 
-                        <!-- AMOUNT -->
-                        <td>
-                            ${{ payment.amount }}
-                        </td>
+        <td>${{ payment.refundedAmount }}</td>
 
-                        <!-- REFUNDED -->
-                        <td>
-                            ${{ payment.refundedAmount }}
-                        </td>
+        <td>{{ payment.created_at|date:"Y-m-d H:i" }}</td>
 
-                        <!-- DATE -->
-                        <td>
-                            {{ payment.created_at|date:"Y-m-d H:i" }}
-                        </td>
+        <td>{{ payment.booking.package.title }}</td>
+    </tr>
 
-                        <td>
-                            {{ payment.booking.package.title}}
-                        </td>
-                    </tr>
+{% empty %}
 
-                {% endfor %}
+    <tr>
+        <td colspan="6" class="text-center py-4 text-muted">
+            No payments found.
+        </td>
+    </tr>
 
-                </tbody>
+{% endfor %}
+
+</tbody>
 
             </table>
 
