@@ -1,0 +1,183 @@
+:root{
+ --pink-color: #E91E8C;
+ --box-color :rgba(7, 36, 138, 0.63);
+ --footer-background: #1e3a8a;
+ --button-color: #4A90E2;
+}
+body{
+ font-family: 'Raleway', sans-serif;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #444;
+  overflow-x: hidden;
+}
+
+.travel-navbar{
+background: rgba(37, 54, 169, 0.55);
+position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+}
+.nav-link1, .logo, .login-button {
+  color: white !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+}
+
+.logo{
+text-transform: uppercase;
+font-family: "Raleway",sans-serif;
+font-size:  35px;
+font-weight: 600;
+letter-spacing: 0.5px;
+text-decoration: none;
+}
+
+.nav-link1{
+transition: color 0.3s ease,transform 0.3s ease-in-out;
+}
+.nav-link1:hover{
+ color: var(--pink-color) !important;
+ transform: scale(1.05);
+}
+.container{
+ margin-bottom: 30px;
+}
+.login-button{
+font-family: "Raleway",sans-serif;
+background: var(--button-color);
+color: white;
+padding: 10px 24px;
+border-radius: 20px;
+text-decoration: none;
+}
+.login-button:hover {
+  background: #357ABD;
+  color: white;
+}
+.hero-section h1{
+font-family: 'Playfair Display', serif;
+font-size: 5rem;
+font-weight: 800;
+color: white;
+letter-spacing: 0.5px;
+text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+.container-box {
+    margin-left: 260px;
+    padding: 40px;
+}
+
+/* CARD */
+.booking-card {
+    border: none;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+
+.booking-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+}
+
+/* TITLE INSIDE CARD (opsional) */
+.booking-card h5 {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* TEXT */
+.booking-card p {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* STATUS BADGES */
+.status {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-weight: 600;
+    display: inline-block;
+    letter-spacing: 0.3px;
+    width: auto;
+}
+
+/* STATUS COLORS */
+.pending {
+    background: #fff8e1;
+    color: #b7791f;
+    border: 1px solid #ffe08a;
+}
+
+.approved {
+    background: #e6f7ef;
+    color: #1f7a4d;
+    border: 1px solid #a7e6c5;
+}
+
+.rejected {
+    background: #fdecea;
+    color: #b42318;
+    border: 1px solid #f5b5b0;
+}
+
+/* BUTTONS (nëse ke) */
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* SMALL ANIMATION FOR PAGE LOAD */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.booking-card {
+    animation: fadeIn 0.4s ease-in-out;
+}
+.btn-action {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Approve */
+.btn-approve {
+    background: #e6f7ef;
+    color: #1f7a4d;
+}
+
+.btn-approve:hover {
+    background: #d1f0e1;
+    transform: translateY(-2px);
+}
+
+/* Cancel */
+.btn-cancel {
+    background: #fdecea;
+    color: #b42318;
+}
+
+.btn-cancel:hover {
+    background: #f8d7da;
+    transform: translateY(-2px);
+}
+footer{
+background: var(--footer-background);
+}
+footer .copyright{
+background: rgba(0, 0, 0, 0.2);
+}
+.newsletter input{
+max-width: 220px;
+height: 35px;
+}
