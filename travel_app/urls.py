@@ -1,5 +1,9 @@
 from django.urls import path
+from django.urls import path
+from django.contrib.auth.views import LogoutView
 
+from travel_app import views
+from travel_app.views import CustomLoginView, register_view
 from travel_app import views
 from travel_app.views import ResponseMessageView, BookingDetailView
 
@@ -44,5 +48,14 @@ urlpatterns = [
     path("message/<int:pk>/reply/", ResponseMessageView.as_view(), name="message_reply"),
 
     path("booking/<int:pk>/", BookingDetailView.as_view(), name="booking_detail"),
+
+    path('reviews/', views.ReviewListView.as_view(), name='review_list'),
+
+    path('reviews/create/', views.ReviewCreateView.as_view(), name='review_create'),
+
+    path('reviews/<int:pk>/edit/', views.ReviewUpdateView.as_view(), name='review_edit'),
+
+    path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
+
 
     ]
