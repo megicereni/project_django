@@ -7,8 +7,9 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView,DetailView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
-from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm
+from django.contrib.auth.views import LoginView
+from django.contrib.auth import login
+from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm,LoginForm, RegisterForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
 
 
@@ -311,108 +312,101 @@ def refund_booking(request, pk):
         payment.refundedAmount = 0.5 * booking.totalPrice
         booking.status = 'refunded'
         booking.save()
-#
-#
-#
-# @login_required
-# def my_reviews(request):
-#     reviews = Review.objects.filter(user=request.user).order_by('-created_at')
-#     return render(request, 'travel_app/my_reviews.html', {'reviews': reviews})
-#
-#
-# class ReviewCreateView(LoginRequiredMixin, CreateView):
-#     model = Review
-#     form_class = ReviewForm
-#
-#     def form_valid(self, form):
-#
-#         form.instance.user = self.request.user
-#
-#         response = super().form_valid(form)
-#
-#         messages.success(self.request, "Successfully created review")
-#
-#         return response
-#
-#     def form_invalid(self, form):
-#
-#         messages.error(self.request, "Review is not created successfully")
-#
-#         return super().form_invalid(form)
-#
-#     def get_success_url(self):
-#
-#         return reverse_lazy('home')
-#
-#
-# class ReviewUpdateView(LoginRequiredMixin, UpdateView):
-#     model = Review
-#     form_class = ReviewForm
-#
-#     def form_valid(self, form):
-#
-#         response = super().form_valid(form)
-#
-#         messages.success(self.request, "Successfully updated review")
-#
-#         return response
-#
-#     def form_invalid(self, form):
-#
-#         messages.error(self.request, "Review is not updated successfully")
-#
-#         return super().form_invalid(form)
-#
-#     def get_success_url(self):
-#
-#         return reverse_lazy('home')
-#
-#
-# class ReviewDeleteView(LoginRequiredMixin, DeleteView):
-#     model = Review
-#
-#     def get_success_url(self):
-#
-#         messages.success(self.request, "Successfully deleted review")
-#
-#         return reverse_lazy('home')
-# # ── MESAZHET ────────────────────────────────────────────
-# @login_required
-# def my_messages(request):
-#     user_messages = Message.objects.filter(user=request.user).order_by('-created_at')
-#     return render(request, 'travel_app/my_messages.html', {'messages_list': user_messages})
-#
-#
-# @login_required
-# def send_message(request):
-#     if request.method == 'POST':
-#         form = MessageForm(request.POST)
-#         if form.is_valid():
-#             msg = form.save(commit=False)
-#             msg.user = request.user
-#             msg.name = request.user.get_full_name() or request.user.username
-#             msg.email = request.user.email
-#             msg.save()
-#             messages.success(request, 'Message sent successfully!')
-#             return redirect('my_messages')
-#     else:
-#         form = MessageForm(initial={
-#             'name': request.user.get_full_name() or request.user.username,
-#             'email': request.user.email,
-#         })
-#
-#     return render(request, 'travel_app/send_message.html', {'form': form})
-#per review te userit te loguar
-# class ReviewListView(LoginRequiredMixin, ListView):
-#
-#     model = Review
-#
-#     template_name = 'review/review_list.html'
-#
-#     context_object_name = 'reviews'
-#
-#     def get_queryset(self):
-#
-#         return Review.objects.filter(
-#             user=self.request.user
-#         )
+class ReviewListView(LoginRequiredMixin, ListView):
+    model = Review
+    template_name = "client/review_list.html"
+    context_object_name = "reviews"
+    ordering = ["-id"]
+
+    def get_queryset(self):
+        return Review.objects.filter(
+            booking__client=self.request.user
+        ).select_related("booking", "booking__package").order_by("-id")
+
+
+class ReviewCreateView(LoginRequiredMixin, CreateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = "client/review_form.html"
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+
+        form.fields["booking"].queryset = Booking.objects.filter(
+            client=self.request.user,
+            status="approved"
+        )
+
+        return form
+
+    def form_valid(self, form):
+        booking = form.cleaned_data["booking"]
+
+        if booking.client != self.request.user:
+            messages.error(self.request, "You cannot review this booking")
+            return self.form_invalid(form)
+
+        response = super().form_valid(form)
+
+        messages.success(self.request, "Successfully created review")
+
+        return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Review is not created successfully")
+
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("review_list")
+
+
+class ReviewUpdateView(LoginRequiredMixin, UpdateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = "client/review_form.html"
+
+    def get_queryset(self):
+        return Review.objects.filter(
+            booking__client=self.request.user
+        )
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+
+        form.fields["booking"].queryset = Booking.objects.filter(
+            client=self.request.user,
+            status="approved"
+        )
+
+        return form
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        messages.success(self.request, "Successfully updated review")
+
+        return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Review is not updated successfully")
+
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("review_list")
+
+
+class ReviewDeleteView(LoginRequiredMixin, DeleteView):
+    model = Review
+    template_name = "client/review_confirm_delete.html"
+
+    def get_queryset(self):
+        return Review.objects.filter(
+            booking__client=self.request.user
+        )
+
+    def get_success_url(self):
+        messages.success(self.request, "Successfully deleted review")
+
+        return reverse_lazy("review_list")
