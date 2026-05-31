@@ -1,25 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Review_list</title>
-</head>
-<body>
-{% for review in reviews %}
+{% extends 'base.html' %}
 
-<h3>{{ review.first_name }}</h3>
+{% block content %}
 
-<p>{{ review.review }}</p>
+<div class="container mt-5">
 
-<a href="{% url 'review_update' review.id %}">
-    Update
-</a>
+    <h2>Reviews</h2>
 
-<a href="{% url 'review_delete' review.id %}">
-    Delete
-</a>
+    <a href="{% url 'review_create' %}"
+       class="btn btn-success mb-3">
+        Add Review
+    </a>
 
-{% endfor %}
+    <table class="table table-bordered">
 
-</body>
-</html>
+        <thead>
+            <tr>
+                <th>Booking</th>
+                <th>Review</th>
+                <th>Organization</th>
+                <th>Staff</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for review in reviews %}
+
+            <tr>
+
+                <td>{{ review.booking.id }}</td>
+
+                <td>{{ review.content }}</td>
+
+                <td>{{ review.organization }}</td>
+
+                <td>{{ review.staff }}</td>
+
+                <td>{{ review.price }}</td>
+
+                <td>
+
+                    <a href="{% url 'review_edit' review.id %}"
+                       class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
+
+                    <a href="{% url 'review_delete' review.id %}"
+                       class="btn btn-danger btn-sm">
+                        Delete
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="6">
+                    No reviews found.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
