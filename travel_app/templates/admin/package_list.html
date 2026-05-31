@@ -1,82 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Packages</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<main class="container py-5">
-    {# Header for the package list page. The Create button opens GeneralPackageCreateView. #}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Packages</h1>
-        <a href="{% url 'package_create' %}" class="btn btn-primary">Create Package</a>
-        <a href="{% url 'attraction_create'%}" class="btn btn-primary">Add attraction</a>
-    </div>
+{% extends "base.html" %}
+{% block title %}Packages{% endblock %}
 
-    {# Shows success/error messages created in views.py with django.contrib.messages. #}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Packages</h1>
+
+    {% if user.is_staff %}
+    <div>
+        <a href="{% url 'package_create' %}" class="btn btn-primary">
+            Create Package
+        </a>
+        <a href="{% url 'attraction_create' %}" class="btn btn-primary">
+            Add Attraction
+        </a>
+    </div>
     {% endif %}
+</div>
 
-    {# Search form. It uses method="GET", so the search text appears in the URL as ?q=... #}
-    <form method="GET" class="row g-2 mb-4">
-        <div class="col-md-10">
-            <input type="search"
-                   name="q"
-                   value="{{ search }}"
-                   class="form-control"
-                   placeholder="Search by title, destination, or description">
-        </div>
-        <div class="col-md-2 d-grid">
-            <button type="submit" class="btn btn-outline-primary">Search</button>
-        </div>
-    </form>
+{% if not user.is_authenticated %}
+<div class="alert alert-info">
+    You can browse all packages, but you must
+    <a href="{% url 'login' %}">login</a>
+    to make a booking.
+</div>
+{% endif %}
 
-    {# The "packages" variable comes from GeneralPackageListView.context_object_name. #}
-    <div class="card shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-dark">
-                <tr>
-                    <th>Title</th>
-                    <th>Destination</th>
-                    <th>Price</th>
-                    <th>Days</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for package in packages %}
-                    <tr>
-                        {# Each package is one GeneralPackages object from the database. #}
-                        <td>{{ package.title }}</td>
-                        <td>{{ package.destination }}</td>
-                        <td>${{ package.price }}</td>
-                        <td>{{ package.days }}</td>
-                        <td class="text-end">
-                            {# These links use the package id to build detail and edit URLs. #}
-                            <a href="{% url 'package_detail' package.id %}" class="btn btn-sm btn-outline-secondary">View</a>
-                            <a href="{% url 'package_edit' package.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                            {# DeleteView should receive POST, so delete is a form, not a link. #}
-                            <form method="POST" action="{% url 'package_delete' package.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% empty %}
-                    {# The empty block runs when the queryset has no packages. #}
-                    <tr>
-                        <td colspan="5" class="text-center py-4">No packages found.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if user.is_staff %}
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Destination</th>
+                <th>Price</th>
+                <th>Days</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for package in packages %}
+            <tr>
+                <td>{{ package.title }}</td>
+                <td>{{ package.destination }}</td>
+                <td>${{ package.price }}</td>
+                <td>{{ package.days }}</td>
+
+                <td class="text-end">
+                    <a href="{% url 'package_detail' package.id %}"
+                       class="btn btn-sm btn-outline-secondary">
+                        View
+                    </a>
+
+                    <a href="{% url 'package_edit' package.id %}"
+                       class="btn btn-sm btn-outline-primary">
+                        Edit
+                    </a>
+
+                    <form method="POST"
+                          action="{% url 'package_delete' package.id %}"
+                          class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-danger">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-4">
+                    No packages found.
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="row">
+
+    {% for package in packages %}
+    <div class="col-md-4 mb-4">
+
+        <div class="card h-100 shadow-sm package-card">
+            {% if package.photo %}
+            <img src="{{ package.photo.url }}"
+                 class="card-img-top"
+                 style="height: 200px; object-fit: cover;"
+                 alt="{{ package.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ package.title }}</h5>
+
+                <p><strong>Destination:</strong> {{ package.destination }}</p>
+                <p><strong>Days:</strong> {{ package.days }}</p>
+                <p><strong>Price:</strong> ${{ package.price }}</p>
+
+                <p class="text-muted">
+                    {{ package.description|truncatewords:20 }}
+                </p>
+            </div>
+
+            <div class="card-footer bg-white border-0 d-flex justify-content-between">
+
+                <a href="{% url 'package_detail' package.id %}"
+                   class="btn btn-outline-primary btn-sm">
+                    View Details
+                </a>
+
+                {% if user.is_authenticated %}
+                <a href="{% url 'booking_create' package.id %}"
+                   class="btn btn-success btn-sm">
+                    Book Now
+                </a>
+                {% else %}
+                <button class="btn btn-secondary btn-sm" disabled>
+                    Login to Book
+                </button>
+                {% endif %}
+
+            </div>
+
         </div>
     </div>
-</main>
-</body>
-</html>
+
+    {% empty %}
+    <p class="text-center">No packages found.</p>
+    {% endfor %}
+
+</div>
+
+{% endif %}
+{% endblock %}
