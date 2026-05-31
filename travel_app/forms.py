@@ -1,5 +1,6 @@
 from django import forms
-from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review,Client
 
 
 class GeneralPackageForm(forms.ModelForm):
@@ -30,7 +31,7 @@ class GeneralPackageForm(forms.ModelForm):
 class CustomPackageForm(forms.ModelForm):
     class Meta:
         model = CustomPackages
-        exclude=['package']
+        exclude = ['package']
         widgets = {
             'departureDate': forms.DateInput(
                 attrs={
@@ -67,16 +68,19 @@ class CustomPackageForm(forms.ModelForm):
             raise forms.ValidationError('Arrival date cannot be before than departure date')
         return arrivalDate
 
+
 class ResponseMessageForm(forms.ModelForm):
     class Meta:
         model = Message
         fields = ['responseMessage']
-        widgets ={
+        widgets = {
             'responseMessage': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows':4,
+                'rows': 4,
             })
         }
+
+
 class AttractionForm(forms.ModelForm):
     class Meta:
         model = Attraction
@@ -92,7 +96,6 @@ class AttractionForm(forms.ModelForm):
                     'class': 'form-control',
                 }),
         }
-
 
 
 class BookingForm(forms.ModelForm):
@@ -116,71 +119,38 @@ class BookingForm(forms.ModelForm):
             raise forms.ValidationError('Number of people must be at least 1.')
         return numberOfPeople
 
-# class MessageForm(forms.ModelForm):
-#     class Meta:
-#         model = Message
-#         fields = ['name', 'email', 'body']
-#         widgets = {
-#             'name': forms.TextInput(attrs={'readonly': 'readonly'}),
-#             'email': forms.EmailInput(attrs={'readonly': 'readonly'}),
-#             'body': forms.Textarea(attrs={
-#                 'placeholder': 'Write your message here...',
-#                 'rows': 5
-#             })
-#         }
-#         labels = {
-#             'body': 'Message'
-#         }
 
 class ReviewForm(forms.ModelForm):
-
     class Meta:
-
         model = Review
-
-        exclude = ['user']
+        fields = ['booking', 'content', 'organization', 'staff', 'price']
 
         widgets = {
-
-            'first_name': forms.TextInput(attrs={
+            'booking': forms.Select(attrs={
                 'class': 'form-control',
-                'placeholder': 'First Name',
             }),
-
-            'last_name': forms.TextInput(attrs={
+            'content': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Last Name',
+                'rows': 4,
+                'placeholder': 'Write your review...',
             }),
-
-            'email': forms.EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Email',
-            }),
-
-            'review': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Your review',
-            }),
-
             'organization': forms.Select(attrs={
                 'class': 'form-control',
             }),
-
             'staff': forms.Select(attrs={
                 'class': 'form-control',
             }),
-
             'price': forms.Select(attrs={
                 'class': 'form-control',
             }),
         }
 
-    def clean_review(self):
+    def clean_content(self):
+        content = self.cleaned_data['content']
 
-        if len(self.cleaned_data['review']) < 10:
-
+        if len(content) < 10:
             raise forms.ValidationError(
-                "Review must contain at least 10 characters")
+                "Review must contain at least 10 characters"
+            )
 
-        return self.cleaned_data['review']
+        return content
