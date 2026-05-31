@@ -15,52 +15,52 @@
             <table class="table table-hover align-middle mb-0">
 
                 <thead class="table-dark">
-                    <tr>
-                        <th>User</th>
-                        <th>Message</th>
-                        <th>Status</th>
-                        <th style="width: 120px;">Action</th>
-                    </tr>
+                <tr>
+                    <th>User</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th style="width: 120px;">Action</th>
+                </tr>
                 </thead>
 
                 <tbody>
 
                 {% for msg in messages %}
 
-                    <tr>
-                        <td>{{ msg.client.username }}</td>
+                <tr>
+                    <td>{{ msg.client.username }}</td>
 
-                        <td>{{ msg.message }}</td>
+                    <td>{{ msg.message }}</td>
 
-                        <td>
-                            {% if msg.responseMessage %}
-                                <span class="badge bg-success">Answered</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                            {% endif %}
-                        </td>
+                    <td>
+                        {% if msg.responseMessage %}
+                        <span class="badge bg-success">Answered</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
 
-                      <td>
-    {% if msg.responseMessage %}
-        <button class="btn btn-secondary btn-sm" disabled>
-            Already Replied
-        </button>
-    {% else %}
-        <a href="{% url 'message_reply' msg.id %}"
-           class="btn btn-primary btn-sm">
-            Reply
-        </a>
-    {% endif %}
-</td>
-                    </tr>
+                    <td>
+                        {% if msg.responseMessage %}
+                        <button class="btn btn-secondary btn-sm" disabled>
+                            Already Replied
+                        </button>
+                        {% else %}
+                        <a href="{% url 'message_reply' msg.id %}"
+                           class="btn btn-primary btn-sm">
+                            Reply
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
 
                 {% empty %}
 
-                    <tr>
-                        <td colspan="4" class="text-center py-4 text-muted">
-                            No messages found.
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">
+                        No messages found.
+                    </td>
+                </tr>
 
                 {% endfor %}
 
