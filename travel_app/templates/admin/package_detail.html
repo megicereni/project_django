@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ package.title }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+{% extends "base.html" %}
+{% block title %}Package Detail {{package.title}} {% endblock %}
+{% block content %}
 <main class="container py-5">
     {# The "package" variable comes from GeneralPackageDetailView.context_object_name. #}
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -14,22 +9,25 @@
             <h1 class="h3 mb-0">{{ package.title }}</h1>
         </div>
         {# This opens GeneralPackageUpdateView for the current package. #}
+        {% if user.is_staff %}
         <a href="{% url 'package_edit' package.id %}" class="btn btn-primary">Edit Package</a>
+        {% endif %}
     </div>
 
     {# Shows messages after creating or editing a package. #}
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
     {% endif %}
 
+    {% if user.is_staff %}
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="card shadow-sm">
                 {# The photo is optional because the model field has blank=True and null=True. #}
                 {% if package.photo %}
-                    <img src="{{ package.photo.url }}" class="card-img-top" alt="{{ package.title }}">
+                <img src="{{ package.photo.url }}" class="card-img-top" alt="{{ package.title }}">
                 {% endif %}
                 <div class="card-body">
                     {# Main fields from the GeneralPackages model. #}
@@ -61,80 +59,139 @@
                         {# "itinerary" comes from get_context_data() in GeneralPackageDetailView. #}
                         {# Each item is a PackagesAttraction row connected to this package. #}
                         {% for item in itinerary %}
-                            <li class="list-group-item px-0">
-                                <strong>Day {{ item.day }}:</strong>
-                                {# select_related("attraction") lets us access item.attraction efficiently. #}
-                                {{ item.attraction.name }} - {{ item.attraction.location }}
-                            </li>
+                        <li class="list-group-item px-0">
+                            <strong>Day {{ item.day }}:</strong>
+                            {# select_related("attraction") lets us access item.attraction efficiently. #}
+                            {{ item.attraction.name }} - {{ item.attraction.location }}
+                        </li>
                         {% empty %}
-                            {# This appears when no attractions have been added to the package. #}
-                            <li class="list-group-item px-0">No attractions added.</li>
+                        {# This appears when no attractions have been added to the package. #}
+                        <li class="list-group-item px-0">No attractions added.</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
             <div class="card shadow-sm mt-4">
-    <div class="card-body">
+                <div class="card-body">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0">Custom Packages</h2>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Custom Packages</h2>
 
-            <a href="{% url 'custom_create' package.id %}"
-               class="btn btn-primary btn-sm">
-                Create Custom Package
-            </a>
+                        <a href="{% url 'custom_create' package.id %}"
+                           class="btn btn-primary btn-sm">
+                            Create Custom Package
+                        </a>
+                    </div>
+
+                    <table class="table table-hover table-bordered align-middle">
+
+                        <thead class="table-light">
+                        <tr>
+                            <th>Departure Date</th>
+                            <th>Arrival Date</th>
+                            <th>People Limit</th>
+                            <th>Price</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for custom in custom_packages %}
+
+                        <tr>
+
+                            <td>{{ custom.departureDate }}</td>
+                            <td>{{ custom.arrivalDate }}</td>
+                            <td>{{ custom.limitNumberOfPeople }}</td>
+                            <td>${{ custom.price }}</td>
+
+                            <td>
+                                <a href="{% url 'custom_edit' custom.id %}"
+                                   class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                No custom packages available.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+
+    <div class="row">
+
+        {% for custom in custom_packages %}
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">Custom Package</h5>
+
+                    <p><strong>Departure:</strong> {{ custom.departureDate }}</p>
+                    <p><strong>Arrival:</strong> {{ custom.arrivalDate }}</p>
+                    <p><strong>People Limit:</strong> {{ custom.limitNumberOfPeople }}</p>
+                    <p><strong>Price:</strong> ${{ custom.price }}</p>
+
+                    <hr>
+
+                    <h6>Itinerary</h6>
+
+                    <ul class="list-group list-group-flush">
+
+                        {% for item in itinerary %}
+                        <li class="list-group-item px-0">
+                            <strong>Day {{ item.day }}:</strong>
+                            {{ item.attraction.name }}
+
+                            {% if item.attraction.location %}
+                            - {{ item.attraction.location }}
+                            {% endif %}
+                        </li>
+
+                        {% empty %}
+                        <li class="list-group-item px-0 text-muted">
+                            No itinerary added
+                        </li>
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            </div>
+
         </div>
 
-        <table class="table table-hover table-bordered align-middle">
+        {% empty %}
 
-            <thead class="table-light">
-                <tr>
-                    <th>Departure Date</th>
-                    <th>Arrival Date</th>
-                    <th>People Limit</th>
-                    <th>Price</th>
-                    <th style="width: 120px;">Actions</th>
-                </tr>
-            </thead>
+        <p class="text-center">No custom packages available.</p>
 
-            <tbody>
-
-                {% for custom in custom_packages %}
-
-                    <tr>
-
-                        <td>{{ custom.departureDate }}</td>
-                        <td>{{ custom.arrivalDate }}</td>
-                        <td>{{ custom.limitNumberOfPeople }}</td>
-                        <td>${{ custom.price }}</td>
-
-                        <td>
-                            <a href="{% url 'custom_edit' custom.id %}"
-                               class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
-                        </td>
-
-                    </tr>
-
-                {% empty %}
-
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">
-                            No custom packages available.
-                        </td>
-                    </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
+        {% endfor %}
 
     </div>
-</div>
-        </div>
+
+    {% endif %}
+
     </div>
 </main>
-</body>
-</html>
+{% endblock %}
