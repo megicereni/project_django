@@ -10,7 +10,13 @@
        class="btn btn-success mb-3">
         Add Review
     </a>
-
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
     <table class="table table-bordered">
 
         <thead>
