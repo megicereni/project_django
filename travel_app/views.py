@@ -4,23 +4,26 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.context_processors import request
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView,DetailView
+from django.views.generic import CreateView, UpdateView, DeleteView, ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
-from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm,LoginForm, RegisterForm
+from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm, LoginForm, \
+    RegisterForm
+from .forms import MessageForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
 from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review, \
     Client
 from django import forms
 
 
-
 class StaffRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
     raise_exception = True
+
     def test_func(self):
         return self.request.user.is_staff
+
 
 class GeneralPackageListView(ListView):
     model = GeneralPackages
@@ -53,6 +56,8 @@ class GeneralPackageListView(ListView):
         context = super().get_context_data(**kwargs)
         context["search"] = self.request.GET.get("q", "").strip()
         return context
+
+
 class GeneralPackageDetailView(DetailView):
     model = GeneralPackages
     template_name = "admin/package_detail.html"
@@ -70,10 +75,12 @@ class GeneralPackageDetailView(DetailView):
         ).order_by("departureDate")
         return context
 
+
 class BookingDetailView(DetailView):
     model = Booking
     template_name = "admin/booking_detail.html"
     context_object_name = "booking"
+
 
 class GeneralPackageFormMixin:
     model = GeneralPackages
@@ -114,6 +121,7 @@ class GeneralPackageFormMixin:
             ).select_related("attraction").order_by("day")
         return context
 
+
 class GeneralPackageCreateView(GeneralPackageFormMixin, CreateView):
     def form_valid(self, form):
         # First let Django save the GeneralPackages object.
@@ -131,6 +139,7 @@ class GeneralPackageCreateView(GeneralPackageFormMixin, CreateView):
     def get_success_url(self):
         # After creating, send the user to the detail page for the new package.
         return reverse_lazy('package_detail', kwargs={'pk': self.object.pk})
+
 
 class GeneralPackageUpdateView(GeneralPackageFormMixin, UpdateView):
     def form_valid(self, form):
@@ -150,6 +159,7 @@ class GeneralPackageUpdateView(GeneralPackageFormMixin, UpdateView):
         # After editing, return to the same package's detail page.
         return reverse_lazy('package_detail', kwargs={'pk': self.object.pk})
 
+
 class GeneralPackageDeleteView(DeleteView):
     model = GeneralPackages
 
@@ -157,10 +167,12 @@ class GeneralPackageDeleteView(DeleteView):
         messages.success(self.request, "Successfully deleted package")
         return reverse_lazy('package_list')
 
+
 class CustomPackageCreateView(CreateView):
     model = CustomPackages
     form_class = CustomPackageForm
-    template_name="admin/custom_package.html"
+    template_name = "admin/custom_package.html"
+
     def dispatch(self, request, *args, **kwargs):
         self.package = GeneralPackages.objects.get(pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
@@ -169,6 +181,7 @@ class CustomPackageCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['general'] = self.package
         return context
+
     def form_valid(self, form):
         form.instance.package = self.package
         return super().form_valid(form)
@@ -196,9 +209,11 @@ class AttractionCreateView(CreateView):
     model = Attraction
     form_class = AttractionForm
     template_name = "admin/attraction.html"
+
     def get_success_url(self):
         messages.success(self.request, "Successfully deleted package")
         return reverse_lazy('package_list')
+
 
 class ResponseMessageView(UpdateView):
     model = Message
@@ -209,25 +224,31 @@ class ResponseMessageView(UpdateView):
         messages.success(self.request, "Reply sent successfully")
 
         return super().form_valid(form)
+
     def get_success_url(self):
         return reverse_lazy('package_list')
+
 
 class BookingListView(ListView):
     model = Booking
     context_object_name = 'bookings'
-    template_name="admin/booking_list.html"
+    template_name = "admin/booking_list.html"
     ordering = ['-created_at']
+
+
 class MessageListView(ListView):
     model = Message
     context_object_name = 'messages'
-    template_name="admin/messages_list.html"
+    template_name = "admin/messages_list.html"
     ordering = ['-id']
+
 
 class PaymentListView(ListView):
     model = Payment
     context_object_name = 'payments'
     ordering = ['-created_at']
-    template_name="admin/payment_list.html"
+    template_name = "admin/payment_list.html"
+
 
 def confirm_booking(request, pk):
     booking = get_object_or_404(Booking, pk=pk)
@@ -238,6 +259,8 @@ def confirm_booking(request, pk):
     booking.status = 'approved'
     booking.save()
     return redirect('booking_list')
+
+
 #
 #
 def cancel_booking(request, pk):
@@ -253,6 +276,8 @@ def cancel_booking(request, pk):
         payment.save()
 
     return redirect('booking_list')
+
+
 #
 
 
@@ -325,6 +350,8 @@ def refund_booking(request, pk):
         payment.refundedAmount = 0.5 * booking.totalPrice
         booking.status = 'refunded'
         booking.save()
+
+
 class ReviewListView(LoginRequiredMixin, ListView):
     model = Review
     template_name = "client/review_list.html"
@@ -423,3 +450,38 @@ class ReviewDeleteView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, "Successfully deleted review")
 
         return reverse_lazy("review_list")
+
+
+class ClientMessageListView(LoginRequiredMixin, ListView):
+    model = Message
+    template_name = "client/message_list.html"
+    context_object_name = "messages_list"
+    ordering = ["-id"]
+
+    def get_queryset(self):
+        return Message.objects.filter(
+            client=self.request.user
+        ).order_by("-id")
+
+
+class ClientMessageCreateView(LoginRequiredMixin, CreateView):
+    model = Message
+    form_class = MessageForm
+    template_name = "client/message_form.html"
+
+    def form_valid(self, form):
+        form.instance.client = self.request.user
+
+        response = super().form_valid(form)
+
+        messages.success(self.request, "Message sent successfully")
+
+        return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Message was not sent successfully")
+
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("client_message_list")
