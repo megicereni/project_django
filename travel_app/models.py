@@ -42,8 +42,8 @@ class Client(AbstractUser):
 class Booking(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
+        ('approved', 'Confirmed'),
+        ('rejected', 'Cancelled'),
     ]
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     package = models.ForeignKey(CustomPackages, on_delete=models.CASCADE)
