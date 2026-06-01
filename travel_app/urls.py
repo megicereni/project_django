@@ -3,7 +3,7 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 
 from travel_app import views
-from travel_app.views import CustomLoginView, register_view
+
 from travel_app import views
 from travel_app.views import ResponseMessageView, BookingDetailView
 
@@ -31,19 +31,19 @@ urlpatterns = [
     # Delete action for one package. This should be used with POST, not a normal link.
     path('packages/<int:pk>/delete/', views.GeneralPackageDeleteView.as_view(), name='package_delete'),
 
-    path('attractions/',views.AttractionCreateView.as_view(), name='attraction_create'),
+    path('attractions/', views.AttractionCreateView.as_view(), name='attraction_create'),
 
-    path('custom/<int:pk>/create',views.CustomPackageCreateView.as_view(), name='custom_create'),
+    path('custom/<int:pk>/create', views.CustomPackageCreateView.as_view(), name='custom_create'),
 
-    path('custom/<int:pk>/edit/',views.CustomPackageUpdateView.as_view(), name='custom_edit'),
+    path('custom/<int:pk>/edit/', views.CustomPackageUpdateView.as_view(), name='custom_edit'),
 
-    path('bookings/list',views.BookingListView.as_view(), name='booking_list'),
+    path('bookings/list', views.BookingListView.as_view(), name='booking_list'),
 
-    path('booking/<int:pk>/confirm',views.confirm_booking, name='booking_confirm'),
-    path('booking/<int:pk>/cancel',views.cancel_booking, name='booking_cancel'),
-    path('booking/<int:pk>/refund',views.refund_booking, name='booking_refund'),
+    path('booking/<int:pk>/confirm', views.confirm_booking, name='booking_confirm'),
+    path('booking/<int:pk>/cancel', views.cancel_booking, name='booking_cancel'),
+    path('booking/<int:pk>/refund', views.refund_booking, name='booking_refund'),
 
-    path('messages/list',views.MessageListView.as_view(), name='message_list'),
+    path('messages/list', views.MessageListView.as_view(), name='message_list'),
 
     path("message/<int:pk>/reply/", ResponseMessageView.as_view(), name="message_reply"),
 
@@ -57,7 +57,10 @@ urlpatterns = [
 
     path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
 
-    path('payments/list',views.PaymentListView.as_view(), name='payment_list'),
+    path('payments/list', views.PaymentListView.as_view(), name='payment_list'),
 
+    path("my-messages/", views.ClientMessageListView.as_view(), name="client_message_list"),
 
-    ]
+    path("my-messages/create/", views.ClientMessageCreateView.as_view(), name="client_message_create"),
+
+]
