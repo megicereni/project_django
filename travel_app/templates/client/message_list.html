@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2>My Messages</h2>
+
+    <a href="{% url 'client_message_create' %}" class="btn btn-success mb-3">
+        Send New Message
+    </a>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>My Message</th>
+                <th>Admin Response</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for message in messages_list %}
+                <tr>
+                    <td>{{ message.message }}</td>
+
+                    <td>
+                        {% if message.responseMessage %}
+                            {{ message.responseMessage }}
+                        {% else %}
+                            <span class="text-muted">No response yet</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">No messages found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% for message in messages_list %}
+
+<div class="card mb-3">
+    <div class="card-body">
+
+        <h5>Your Message</h5>
+        <p>{{ message.message }}</p>
+
+        {% if message.responseMessage %}
+        <div class="alert alert-success">
+            <strong>Company Reply:</strong><br>
+            {{ message.responseMessage }}
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            Waiting for admin response...
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% empty %}
+
+<p>No messages found.</p>
+
+{% endfor %}
+
+{% endblock %}
