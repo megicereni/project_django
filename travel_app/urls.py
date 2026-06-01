@@ -57,5 +57,7 @@ urlpatterns = [
 
     path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
 
+    path('payments/list',views.PaymentListView.as_view(), name='payment_list'),
+
 
     ]

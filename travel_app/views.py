@@ -11,6 +11,10 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
 from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm,LoginForm, RegisterForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
+from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review, \
+    Client
+from django import forms
+
 
 
 class StaffRequiredMixin(UserPassesTestMixin, LoginRequiredMixin):
@@ -219,13 +223,39 @@ class MessageListView(ListView):
     template_name="admin/messages_list.html"
     ordering = ['-id']
 
+class PaymentListView(ListView):
+    model = Payment
+    context_object_name = 'payments'
+    ordering = ['-created_at']
+    template_name="admin/payment_list.html"
+
+def confirm_booking(request, pk):
+    booking = get_object_or_404(Booking, pk=pk)
+    if booking.numberOfPeople > booking.package.limitNumberOfPeople:
+        booking.status = 'rejected'
+        booking.save()
+        messages.success(request, "It can be overbooking")
+    booking.status = 'approved'
+    booking.save()
+    return redirect('booking_list')
 #
-# class PaymentListView(ListView):
-#     model = Payment
-#     context_object_name = 'payments'
-#     ordering = ['-created_at']
-#     template_name="admin/payment_list.html"
 #
+def cancel_booking(request, pk):
+    booking = get_object_or_404(Booking, pk=pk)
+
+    booking.status = 'rejected'
+    booking.save()
+
+    payment = booking.payment_set.first()
+
+    if payment:
+        payment.refundedAmount = booking.totalPrice
+        payment.save()
+
+    return redirect('booking_list')
+#
+
+
 # @login_required
 # def book_package(request, pk):
 #     package = get_object_or_404(CustomPackages, pk=pk)
@@ -280,24 +310,7 @@ class MessageListView(ListView):
 #
 #     return render(request, 'travel_app/cancel_confirm.html', {'booking': booking})
 #
-def confirm_booking(request, pk):
-    booking = get_object_or_404(Booking, pk=pk)
-    if booking.numberOfPeople > booking.package.limitNumberOfPeople:
-        booking.status = 'canceled'
-        booking.save()
-        messages.success(request, "It can be overbooking")
-    booking.status = 'approved'
-    booking.save()
-    return redirect('booking_list')
-#
-#
-def cancel_booking(request, pk):
-    booking = get_object_or_404(Booking, pk=pk)
-    booking.status = 'canceled'
-    booking.save()
-    return redirect('booking_list')
-#
-#
+
 def refund_booking(request, pk):
     booking = get_object_or_404(Booking, pk=pk)
     payment = get_object_or_404(Payment, booking=booking)
