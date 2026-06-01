@@ -52,6 +52,9 @@ class Booking(models.Model):
     totalPrice = models.IntegerField(default=0)
     status = models.CharField(choices=STATUS_CHOICES, max_length=20, default='pending')
 
+    def _str_(self):
+        return self.package.package.title
+
 
 class Message(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
