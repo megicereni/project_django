@@ -4,7 +4,13 @@
 
 <div class="container mt-5">
     <h2>Contact Mia Travel</h2>
-
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
     <form method="POST">
         {% csrf_token %}
 
@@ -18,18 +24,4 @@
         </button>
     </form>
 </div>
-class Message(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
-
-    subject = models.CharField(max_length=200)
-
-    message = models.TextField()
-
-    response = models.TextField(
-        blank=True,
-        null=True
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
 {% endblock %}

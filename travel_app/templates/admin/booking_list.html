@@ -43,7 +43,7 @@
                         </p>
 
                         <p class="mb-1">
-                            <strong>Status:</strong> {{ b.status }}
+                            <strong>Status:</strong> {{ b.get_status_display  }}
                         </p>
 
                         <a href="{% url 'booking_detail' b.id %}"
