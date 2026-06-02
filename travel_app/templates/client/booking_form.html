@@ -1,23 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Booking Form</title>
-</head>
-<body>
-<form method="POST">
+{% extends 'base.html' %}
 
-    {% csrf_token %}
+{% block content %}
 
-    {{ form.as_p }}
+<div class="container mt-5">
 
-    <button type="submit"
-            class="btn btn-primary">
+    <h2>Complete Your Booking</h2>
 
-        Book Now
+    <div class="card mb-4">
+        <div class="card-body">
 
-    </button>
+            <h4>{{ package.package.title }}</h4>
 
-</form>
-</body>
-</html>
+            <p>
+                <strong>Destination:</strong>
+                {{ package.package.destination }}
+            </p>
+
+            <p>
+                <strong>Departure Date:</strong>
+                {{ package.departureDate }}
+            </p>
+
+            <p>
+                <strong>Arrival Date:</strong>
+                {{ package.arrivalDate }}
+            </p>
+
+            <p>
+                <strong>Price per person:</strong>
+                {{ package.price }} €
+            </p>
+
+            <p>
+                <strong>Limit people:</strong>
+                {{ package.limitNumberOfPeople }}
+            </p>
+
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">
+                Number of People
+            </label>
+
+            {{ form.numberOfPeople }}
+
+            <div class="text-danger">
+                {{ form.numberOfPeople.errors }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Confirm Booking & Pay
+        </button>
+
+        <a href="{% url 'package_list' %}" class="btn btn-secondary">
+            Back
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}
