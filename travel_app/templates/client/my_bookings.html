@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2>My Bookings</h2>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <table class="table table-bordered">
+
+        <thead>
+        <tr>
+            <th>Package</th>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>People</th>
+            <th>Total Price</th>
+            <th>Status</th>
+            <th>Refund</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        {% for booking in bookings %}
+
+        <tr>
+            <td>
+                {{ booking.package.package.title }}
+            </td>
+
+            <td>
+                {{ booking.package.departureDate }}
+            </td>
+
+            <td>
+                {{ booking.package.arrivalDate }}
+            </td>
+
+            <td>
+                {{ booking.numberOfPeople }}
+            </td>
+
+            <td>
+                {{ booking.totalPrice }} €
+            </td>
+
+            <td>
+                {{ booking.status }}
+            </td>
+
+            <td>
+                {% for payment in booking.payment_set.all %}
+                {{ payment.refundedAmount }} €
+                {% empty %}
+                0 €
+                {% endfor %}
+            </td>
+
+            <td>
+                {% if booking.status != "rejected" %}
+                <a href="/my-bookings/{{ booking.id }}/cancel/"
+                   class="btn btn-danger btn-sm">
+                    Cancel Booking
+                </a>
+                {% else %}
+                <span class="text-muted">Cancelled</span>
+                {% endif %}
+            </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+            <td colspan="8">
+                No bookings found.
+            </td>
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
