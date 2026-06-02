@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
 from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm, LoginForm, \
-    RegisterForm
+    RegisterForm, BookingForm
 from .forms import MessageForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
 from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review, \
@@ -352,6 +352,124 @@ def refund_booking(request, pk):
         booking.save()
 
 
+class ClientPackageListView(ListView):
+    model = GeneralPackages
+    template_name = "client/package_list.html"
+    context_object_name = "packages"
+    ordering = ["-id"]
+
+
+class ClientBookingCreateView(LoginRequiredMixin, CreateView):
+    model = Booking
+    form_class = BookingForm
+    template_name = "client/booking_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.package = get_object_or_404(CustomPackages, pk=kwargs["pk"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        number_of_people = form.cleaned_data["numberOfPeople"]
+
+        if number_of_people > self.package.limitNumberOfPeople:
+            form.add_error(
+                "numberOfPeople",
+                "Number of people exceeds the package limit."
+            )
+            return self.form_invalid(form)
+
+        booking = form.save(commit=False)
+        booking.client = self.request.user
+        booking.package = self.package
+        booking.numberOfPeople = number_of_people
+        booking.totalPrice = self.package.price * number_of_people
+        booking.status = "pending"
+        booking.save()
+
+        Payment.objects.create(
+            booking=booking,
+            amount=booking.totalPrice,
+            refundedAmount=0
+        )
+
+        messages.success(
+            self.request,
+            "Booking created successfully. Payment completed."
+        )
+
+        return redirect("my_bookings")
+
+    def form_invalid(self, form):
+        messages.error(
+            self.request,
+            "Booking was not created successfully."
+        )
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["package"] = self.package
+        return context
+
+
+class ClientBookingListView(LoginRequiredMixin, ListView):
+    model = Booking
+    template_name = "client/my_bookings.html"
+    context_object_name = "bookings"
+
+    def get_queryset(self):
+        return Booking.objects.filter(
+            client=self.request.user
+        ).select_related(
+            "package",
+            "package__package"
+        ).order_by("-created_at")
+
+
+class ClientBookingCancelView(LoginRequiredMixin, UpdateView):
+    model = Booking
+    fields = []
+    template_name = "client/cancel_booking.html"
+
+    def get_queryset(self):
+        return Booking.objects.filter(
+            client=self.request.user
+        )
+
+    def form_valid(self, form):
+        booking = self.object
+        payment = booking.payment_set.first()
+
+        booking.status = "rejected"
+        booking.save()
+
+        if payment:
+            payment.refundedAmount = payment.amount
+            payment.save()
+
+        messages.success(
+            self.request,
+            "Booking cancelled and refund completed."
+        )
+
+        return redirect("my_bookings")
+
+
+class ClientPackageDetailView(DetailView):
+    model = GeneralPackages
+    template_name = "client/package_detail.html"
+    context_object_name = "package"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["custom_packages"] = CustomPackages.objects.filter(
+            package=self.object
+        )
+
+        return context
+
+
 class ReviewListView(LoginRequiredMixin, ListView):
     model = Review
     template_name = "client/review_list.html"
@@ -485,3 +603,5 @@ class ClientMessageCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy("client_message_list")
+
+
