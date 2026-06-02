@@ -169,3 +169,5 @@ class MessageForm(forms.ModelForm):
                 'placeholder': 'Write your message...'
             }),
         }
+
+
