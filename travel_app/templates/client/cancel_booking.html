@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2>Cancel Booking</h2>
+
+    <p>
+        Are you sure you want to cancel this booking?
+    </p>
+
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <p>
+                <strong>Package:</strong>
+                {{ object.package.package.title }}
+            </p>
+
+            <p>
+                <strong>Departure Date:</strong>
+                {{ object.package.departureDate }}
+            </p>
+
+            <p>
+                <strong>Arrival Date:</strong>
+                {{ object.package.arrivalDate }}
+            </p>
+
+            <p>
+                <strong>People:</strong>
+                {{ object.numberOfPeople }}
+            </p>
+
+            <p>
+                <strong>Total Price:</strong>
+                {{ object.totalPrice }} €
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                {{ object.status }}
+            </p>
+
+        </div>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-danger">
+            Confirm Cancel & Refund
+        </button>
+
+        <a href="{% url 'my_bookings' %}" class="btn btn-secondary">
+            Back
+        </a>
+    </form>
+
+</div>
+
+{% endblock %}
