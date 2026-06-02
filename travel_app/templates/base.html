@@ -29,9 +29,7 @@
 
                 {% if user.is_authenticated and not user.is_staff %}
 
-                <li class="nav-item mr-2">
-                    <a class="nav-link nav-link1" href="/my-bookings/">My Bookings</a>
-                </li>
+                <a class="nav-link nav-link1" href="{% url 'my_bookings' %}">My Bookings</a>
 
                 <li class="nav-item">
                     <a class="nav-link nav-link1" href="/reviews/">My Reviews</a>
@@ -39,6 +37,9 @@
                 </li>
                 <a class="nav-link nav-link1" href="{% url 'client_message_list' %}">
                     My Messages
+                </a>
+                <a class="nav-link nav-link1" href="{% url 'package_list' %}">
+                    Package
                 </a>
 
                 {% endif %}
