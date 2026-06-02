@@ -63,4 +63,12 @@ urlpatterns = [
 
     path("my-messages/create/", views.ClientMessageCreateView.as_view(), name="client_message_create"),
 
+    path("booking/create/<int:pk>/", views.ClientBookingCreateView.as_view(), name="booking_create"),
+
+    path("my-bookings/", views.ClientBookingListView.as_view(), name="my_bookings"),
+
+    path("my-bookings/<int:pk>/cancel/", views.ClientBookingCancelView.as_view(), name="client_booking_cancel"),
+    path('client/package/<int:pk>/', views.ClientPackageDetailView.as_view(), name='client_package_detail'),
+
+
 ]
