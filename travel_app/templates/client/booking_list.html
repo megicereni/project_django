@@ -1,79 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>booking list</title>
-</head>
-<body>
-{% for booking in bookings %}
+{% extends 'base.html' %}
 
-<div class="card p-4 mb-4">
+{% block content %}
 
-    <h2>
-        {{ booking.package.package.title }}
-    </h2>
+<div class="container mt-5">
 
-    <p>
-        Departure:
-        {{ booking.package.departureDate }}
-    </p>
+    <h2>Packages</h2>
 
-    <p>
-        Arrival:
-        {{ booking.package.arrivalDate }}
-    </p>
+    <div class="row mt-4">
 
-    <p>
-        People:
-        {{ booking.numberOfPeople }}
-    </p>
+        {% for package in packages %}
 
-    <p>
-        Total Price:
-        €{{ booking.totalPrice }}
-    </p>
+            <div class="col-md-4 mb-4">
 
-    <p>
-        Status:
-        {{ booking.status }}
-    </p>
+                <div class="card h-100 shadow-sm">
 
-    <!-- CANCEL BUTTON -->
+                    {% if package.photo %}
+                        <img src="{{ package.photo.url }}"
+                             class="card-img-top"
+                             style="height: 220px; object-fit: cover;">
+                    {% endif %}
 
-    <form method="POST"
-          action="{% url 'booking_cancel' booking.id %}">
+                    <div class="card-body">
 
-        {% csrf_token %}
+                        <h4>{{ package.title }}</h4>
 
-        <button type="submit"
-                class="btn btn-danger">
+                        <p>
+                            <strong>Destination:</strong>
+                            {{ package.destination }}
+                        </p>
 
-            Cancel Booking
+                        <p>
+                            <strong>Days:</strong>
+                            {{ package.days }}
+                        </p>
 
-        </button>
+                        <p>
+                            <strong>Price:</strong>
+                            €{{ package.price }}
+                        </p>
 
-    </form>
+                        <p>
+                            {{ package.description }}
+                        </p>
 
-    <br>
+                        <a href="/client/package/{{ package.id }}/"
+                           class="btn btn-primary">
+                            View Details
+                        </a>
 
-    <!-- REFUND BUTTON -->
+                    </div>
 
-    <form method="POST"
-          action="{% url 'booking_refund' booking.payment_set.first.id %}">
+                </div>
 
-        {% csrf_token %}
+            </div>
 
-        <button type="submit"
-                class="btn btn-warning">
+        {% empty %}
 
-            Refund Payment
+            <p>No packages found.</p>
 
-        </button>
+        {% endfor %}
 
-    </form>
+    </div>
 
 </div>
 
-{% endfor %}
-</body>
-</html>
+{% endblock %}
