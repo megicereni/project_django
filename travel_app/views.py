@@ -9,8 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
-from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm, LoginForm, \
-    RegisterForm, BookingForm
+from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm,  BookingForm
 from .forms import MessageForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
 from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review, \
@@ -260,9 +259,6 @@ def confirm_booking(request, pk):
     booking.save()
     return redirect('booking_list')
 
-
-#
-#
 def cancel_booking(request, pk):
     booking = get_object_or_404(Booking, pk=pk)
 
@@ -278,78 +274,6 @@ def cancel_booking(request, pk):
     return redirect('booking_list')
 
 
-#
-
-
-# @login_required
-# def book_package(request, pk):
-#     package = get_object_or_404(CustomPackages, pk=pk)
-#
-#     existing = Booking.objects.filter(user=request.user, package=package).first()
-#     if existing:
-#         messages.warning(request, 'You have already booked this package.')
-#         return redirect('my_bookings')
-#
-#     if request.method == 'POST':
-#         booking = Booking.objects.create(
-#             user=request.user,
-#             package=package,
-#             status='pending'
-#         )
-#         # Create Payment linked to this booking
-#         Payment.objects.create(
-#             booking=booking,
-#             totalPrice=package.price,
-#             refundedAmount=0
-#         )
-#         messages.success(request, 'Booking completed! Payment is due within 24 hours.')
-#         return redirect('my_bookings')
-#
-#     return render(request, 'travel_app/book_confirm.html', {'package': package})
-#
-#
-# @login_required
-# def my_bookings(request):
-#     bookings = (Booking.objects.filter(
-#         user=request.user
-#     ).select_related('package', 'payment').order_by('-created_at'))
-#     return render(request, 'travel_app/my_bookings.html', {'bookings': bookings})
-#
-# @login_required
-# def cancel_booking(request, pk):
-#     booking = get_object_or_404(Booking, pk=pk, user=request.user)
-#
-#     if booking.status != 'approved':
-#         messages.error(request, 'Only approved bookings can be cancelled.')
-#         return redirect('my_bookings')
-#
-#     if request.method == 'POST':
-#         payment = Payment.objects.filter(booking=booking).first()
-#         if payment:
-#             payment.refundedAmount = 0.5 * booking.totalPrice
-#             payment.save()
-#         booking.status = 'canceled'
-#         booking.save()
-#         messages.success(request, 'Booking cancelled. A 50% refund will be processed.')
-#         return redirect('my_bookings')
-#
-#     return render(request, 'travel_app/cancel_confirm.html', {'booking': booking})
-#
-
-def refund_booking(request, pk):
-    booking = get_object_or_404(Booking, pk=pk)
-    payment = get_object_or_404(Payment, booking=booking)
-    date = booking.package.departureDate
-    now = timezone.now().date()
-    diff = (date - now).days
-    if booking.status == 'approved' and diff <= 1:
-        payment.refundedAmount = 0
-        booking.status = 'canceled'
-        booking.save()
-    elif booking.status == 'approved' and diff >= 15:
-        payment.refundedAmount = 0.5 * booking.totalPrice
-        booking.status = 'refunded'
-        booking.save()
 
 
 class ClientPackageListView(ListView):
