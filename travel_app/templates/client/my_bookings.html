@@ -67,13 +67,15 @@
             </td>
 
             <td>
-                {% if booking.status != "rejected" %}
-                <a href="/my-bookings/{{ booking.id }}/cancel/"
+                {% if booking.status == 'approved' %}
+                <a href="{% url 'client_booking_cancel' booking.id %}"
                    class="btn btn-danger btn-sm">
-                    Cancel Booking
+                    Cancel / Refund
                 </a>
                 {% else %}
-                <span class="text-muted">Cancelled</span>
+                <span class="text-muted">
+    Cancelled
+</span>
                 {% endif %}
             </td>
         </tr>
