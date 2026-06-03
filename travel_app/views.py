@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import timezone, timedelta
 from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -183,6 +183,9 @@ class CustomPackageCreateView(CreateView):
 
     def form_valid(self, form):
         form.instance.package = self.package
+        departure = form.cleaned_data['departureDate']
+        form.instance.arrivalDate = departure + timedelta(days=self.package.days)
+
         return super().form_valid(form)
 
     def get_success_url(self):

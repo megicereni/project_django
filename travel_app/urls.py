@@ -41,7 +41,6 @@ urlpatterns = [
 
     path('booking/<int:pk>/confirm', views.confirm_booking, name='booking_confirm'),
     path('booking/<int:pk>/cancel', views.cancel_booking, name='booking_cancel'),
-    path('booking/<int:pk>/refund', views.refund_booking, name='booking_refund'),
 
     path('messages/list', views.MessageListView.as_view(), name='message_list'),
 

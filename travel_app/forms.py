@@ -32,7 +32,7 @@ class GeneralPackageForm(forms.ModelForm):
 class CustomPackageForm(forms.ModelForm):
     class Meta:
         model = CustomPackages
-        exclude = ['package']
+        exclude = ['package','arrivalDate']
         widgets = {
             'departureDate': forms.DateInput(
                 attrs={
@@ -40,11 +40,6 @@ class CustomPackageForm(forms.ModelForm):
                     'class': 'form-control'
                 }
             ),
-            'arrivalDate': forms.DateInput(
-                attrs={
-                    'type': 'date',
-                    'class': 'form-control'
-                }),
             'limitNumberOfPeople': forms.TextInput(
                 attrs={
                     'class': 'form-control',
@@ -61,13 +56,6 @@ class CustomPackageForm(forms.ModelForm):
             raise forms.ValidationError('Price cannot be less than 0')
         return self.cleaned_data['price']
 
-    def clean_arrivalDate(self):
-        arrivalDate = self.cleaned_data['arrivalDate']
-        departureDate = self.cleaned_data['departureDate']
-
-        if arrivalDate < departureDate:
-            raise forms.ValidationError('Arrival date cannot be before than departure date')
-        return arrivalDate
 
 
 class ResponseMessageForm(forms.ModelForm):
