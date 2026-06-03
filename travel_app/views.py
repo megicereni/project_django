@@ -438,18 +438,39 @@ class ClientBookingCancelView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         booking = self.object
+
         payment = booking.payment_set.first()
+
+        if booking.status != "approved":
+            messages.error(
+                self.request,
+                "Only approved bookings can be cancelled."
+            )
+            return redirect("my_bookings")
+
+        diff = (
+            booking.packageId.departureDate
+            - timezone.now().date()
+        ).days
+
+        if payment:
+
+            if diff >= 15:
+                payment.refundedAmount = (
+                    booking.totalPrice * 0.5
+                )
+
+            else:
+                payment.refundedAmount = 0
+
+            payment.save()
 
         booking.status = "rejected"
         booking.save()
 
-        if payment:
-            payment.refundedAmount = payment.amount
-            payment.save()
-
         messages.success(
             self.request,
-            "Booking cancelled and refund completed."
+            "Booking cancelled successfully."
         )
 
         return redirect("my_bookings")
