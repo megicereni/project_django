@@ -11,28 +11,6 @@
             background: #f4f6f9;
         }
 
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            position: fixed;
-            background: #111827;
-            color: white;
-            padding: 20px;
-        }
-
-        .sidebar a {
-            display: block;
-            color: #cbd5e1;
-            padding: 10px;
-            text-decoration: none;
-            border-radius: 8px;
-        }
-
-        .sidebar a:hover {
-            background: #1f2937;
-            color: #fff;
-        }
-
         .main {
             margin-left: 260px;
             padding: 40px;
@@ -91,11 +69,10 @@
                         <div class="text-danger small">{{ form.departureDate.errors }}</div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Arrival Date</label>
-                        {{ form.arrivalDate }}
-                        <div class="text-danger small">{{ form.arrivalDate.errors }}</div>
-                    </div>
+                   <div class="col-md-6 mb-3">
+    <label class="form-label">Arrival Date</label>
+    <input type="date" id="arrivalDate" class="form-control" readonly>
+</div>
 
                 </div>
 
@@ -137,6 +114,22 @@
     </div>
 
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departure = document.getElementById('id_departureDate');
+    const arrival = document.getElementById('arrivalDate');
 
+    const packageDays = {{ general.days }};
+
+    departure.addEventListener('change', function() {
+        if (!this.value) return;
+
+        let date = new Date(this.value);
+        date.setDate(date.getDate() + packageDays);
+
+        arrival.value = date.toISOString().split('T')[0];
+    });
+});
+</script>
 </body>
 </html>
