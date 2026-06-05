@@ -9,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
-from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm,  BookingForm
+from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm, BookingForm, \
+    RegisterForm, LoginForm
 from .forms import MessageForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
 from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review, \
@@ -552,4 +553,40 @@ class ClientMessageCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy("client_message_list")
 
+class CustomLoginView(LoginView):
+
+    template_name = 'login/login.html'
+
+    authentication_form = LoginForm
+
+    def get_success_url(self):
+        user = self.request.user
+
+        if user.is_superuser or user.is_staff:
+            return reverse_lazy('home')
+        else:
+            return reverse_lazy('package_list')
+
+
+def register_view(request):
+
+    if request.method == 'POST':
+
+        form = RegisterForm(request.POST)
+
+        if form.is_valid():
+
+            user = form.save()
+
+            login(request, user)
+
+            return redirect('home')
+
+    else:
+
+        form = RegisterForm()
+
+    return render(request, 'login/register.html', {
+        'form': form
+    })
 
