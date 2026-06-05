@@ -1,4 +1,5 @@
 from datetime import timezone, timedelta
+from django.utils import timezone
 from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -377,7 +378,7 @@ class ClientBookingCancelView(LoginRequiredMixin, UpdateView):
             return redirect("my_bookings")
 
         diff = (
-            booking.packageId.departureDate
+            booking.package.departureDate
             - timezone.now().date()
         ).days
 

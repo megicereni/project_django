@@ -67,17 +67,17 @@
             </td>
 
             <td>
-                {% if booking.status == 'approved' %}
-                <a href="{% url 'client_booking_cancel' booking.id %}"
-                   class="btn btn-danger btn-sm">
-                    Cancel / Refund
-                </a>
-                {% else %}
-                <span class="text-muted">
-    Cancelled
-</span>
-                {% endif %}
-            </td>
+    {% if booking.status == 'approved' %}
+        <a href="{% url 'client_booking_cancel' booking.id %}"
+           class="btn btn-danger btn-sm">
+            Cancel / Refund
+        </a>
+    {% elif booking.status == 'rejected' %}
+        <span class="text-muted">Cancelled</span>
+    {% else %}
+        <span class="text-muted">{{ booking.get_status_display }}</span>
+    {% endif %}
+</td>
         </tr>
 
         {% empty %}
