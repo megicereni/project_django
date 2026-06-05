@@ -12,7 +12,8 @@ from django.contrib.auth import login
 from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm, BookingForm, \
     RegisterForm, LoginForm
 from .forms import MessageForm
-from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message
+from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message, \
+     NewsletterSubscriber
 from travel_app.models import GeneralPackages, CustomPackages, Attraction, PackagesAttraction, Booking, Message, Review, \
     Client
 from django import forms
@@ -207,14 +208,13 @@ class CustomPackageUpdateView(UpdateView):
         return reverse_lazy('package_detail', kwargs={'pk': self.object.pk})
 
 
-#
 class AttractionCreateView(CreateView):
     model = Attraction
     form_class = AttractionForm
     template_name = "admin/attraction.html"
 
     def get_success_url(self):
-        messages.success(self.request, "Successfully deleted package")
+        messages.success(self.request, "Successfully added attraction")
         return reverse_lazy('package_list')
 
 
@@ -590,3 +590,21 @@ def register_view(request):
         'form': form
     })
 
+def subscribe_newsletter(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+
+        if not email:
+            messages.error(request, "Email is required.")
+            return redirect('home')
+
+        if NewsletterSubscriber.objects.filter(email=email).exists():
+            messages.info(request, "You are already subscribed.")
+            return redirect('home')
+
+        NewsletterSubscriber.objects.create(email=email)
+
+        messages.success(request, "Subscribed successfully!")
+        return redirect('home')
+
+    return redirect('home')

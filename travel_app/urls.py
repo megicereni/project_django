@@ -5,7 +5,8 @@ from django.contrib.auth.views import LogoutView
 from travel_app import views
 
 from travel_app import views
-from travel_app.views import ResponseMessageView, BookingDetailView, CustomLoginView, register_view
+from travel_app.views import ResponseMessageView, BookingDetailView, CustomLoginView, register_view, \
+    subscribe_newsletter
 
 urlpatterns = [
     # Home page uses the same package list view.
@@ -72,6 +73,8 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
     path('register/', register_view, name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
+
+path("newsletter/subscribe/", subscribe_newsletter, name="newsletter_subscribe"),
 
 
 ]
