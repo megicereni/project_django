@@ -133,9 +133,20 @@
 
                 <div class="newsletter mt-3">
                     <h6 class="fw-bold">Register to our newsletter</h6>
-                    <form class="d-flex flex-column align-items-center mt-2 w-100">
-                        <input type="email" class="form-control mb-2 " placeholder="Enter your email">
-                        <button type="submit" class="btn btn-light text-primary">Subscribe</button>
+                    <form class="d-flex flex-column align-items-center mt-2 w-100"
+                          method="POST"
+                          action="{% url 'newsletter_subscribe' %}">
+                        {% csrf_token %}
+
+                        <input type="email"
+                               name="email"
+                               class="form-control mb-2"
+                               placeholder="Enter your email"
+                               required>
+
+                        <button type="submit" class="btn btn-light text-primary">
+                            Subscribe
+                        </button>
                     </form>
                 </div>
             </div>
@@ -151,37 +162,37 @@
 {% if not user.is_authenticated %}
 
 <div id="chat-bubble" onclick="toggleChat()">
-  <svg viewBox="0 0 24 24">
-    <path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/>
-  </svg>
-  <div class="notif" id="notifDot">1</div>
+    <svg viewBox="0 0 24 24">
+        <path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2z"/>
+    </svg>
+    <div class="notif" id="notifDot">1</div>
 </div>
 
 <div id="chat-window">
 
-  <div class="chat-header">
-    <div class="bot-avatar">✈️</div>
-    <div class="chat-header-info">
-      <h6>Mia – Travel Assistant</h6>
-      <small><span class="online-dot"></span>Online · Always here to help</small>
+    <div class="chat-header">
+        <div class="bot-avatar">✈️</div>
+        <div class="chat-header-info">
+            <h6>Mia – Travel Assistant</h6>
+            <small><span class="online-dot"></span>Online · Always here to help</small>
+        </div>
+        <button class="btn-close-chat" onclick="toggleChat()">✕</button>
     </div>
-    <button class="btn-close-chat" onclick="toggleChat()">✕</button>
-  </div>
 
-  <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-messages" id="chatMessages"></div>
 
-  <div class="quick-replies" id="quickReplies"></div>
+    <div class="quick-replies" id="quickReplies"></div>
 
-  <div class="chat-input-row">
-    <input class="chat-input" id="chatInput" type="text"
-           placeholder="Type your question..."
-           onkeydown="if(event.key==='Enter') sendMsg()">
-    <button class="btn-send" onclick="sendMsg()">
-      <svg viewBox="0 0 24 24">
-        <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
-      </svg>
-    </button>
-  </div>
+    <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" type="text"
+               placeholder="Type your question..."
+               onkeydown="if(event.key==='Enter') sendMsg()">
+        <button class="btn-send" onclick="sendMsg()">
+            <svg viewBox="0 0 24 24">
+                <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
+            </svg>
+        </button>
+    </div>
 
 </div>
 
