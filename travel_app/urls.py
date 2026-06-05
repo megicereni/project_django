@@ -5,7 +5,7 @@ from django.contrib.auth.views import LogoutView
 from travel_app import views
 
 from travel_app import views
-from travel_app.views import ResponseMessageView, BookingDetailView
+from travel_app.views import ResponseMessageView, BookingDetailView, CustomLoginView, register_view
 
 urlpatterns = [
     # Home page uses the same package list view.
@@ -68,6 +68,10 @@ urlpatterns = [
 
     path("my-bookings/<int:pk>/cancel/", views.ClientBookingCancelView.as_view(), name="client_booking_cancel"),
     path('client/package/<int:pk>/', views.ClientPackageDetailView.as_view(), name='client_package_detail'),
+
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('register/', register_view, name='register'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 
 
 ]
