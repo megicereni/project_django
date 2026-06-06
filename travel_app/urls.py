@@ -6,7 +6,7 @@ from travel_app import views
 
 from travel_app import views
 from travel_app.views import ResponseMessageView, BookingDetailView, CustomLoginView, register_view, \
-    subscribe_newsletter
+    subscribe_newsletter, send_newsletter
 
 urlpatterns = [
     # Home page uses the same package list view.
@@ -74,7 +74,7 @@ urlpatterns = [
     path('register/', register_view, name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
 
-path("newsletter/subscribe/", subscribe_newsletter, name="newsletter_subscribe"),
-
+    path("newsletter/subscribe/", subscribe_newsletter, name="newsletter_subscribe"),
+    path("newsletter/send/", send_newsletter, name="send_newsletter"),
 
 ]

@@ -1,4 +1,6 @@
 from datetime import timezone, timedelta
+
+from django.core.mail import send_mass_mail, EmailMultiAlternatives
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib import messages
@@ -11,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
 from .forms import GeneralPackageForm, CustomPackageForm, AttractionForm, ReviewForm, ResponseMessageForm, BookingForm, \
-    RegisterForm, LoginForm
+    RegisterForm, LoginForm, NewsletterForm
 from .forms import MessageForm
 from .models import GeneralPackages, CustomPackages, Review, Attraction, PackagesAttraction, Booking, Payment, Message, \
      NewsletterSubscriber
@@ -609,3 +611,54 @@ def subscribe_newsletter(request):
         return redirect('home')
 
     return redirect('home')
+
+def send_newsletter(request):
+    if request.method == "POST":
+        form = NewsletterForm(request.POST)
+
+        if form.is_valid():
+            subject = form.cleaned_data["subject"]
+            message = form.cleaned_data["message"]
+
+            subscribers = NewsletterSubscriber.objects.values_list(
+                "email", flat=True
+            )
+
+            for subscriber in subscribers:
+
+                html_content = f"""
+                <html>
+                <body style="font-family: Arial, sans-serif;">
+                    <div style="text-align:center;">
+                        <h2>Get our offers </h2>
+                    </div>
+
+                    <h2>{subject}</h2>
+
+                    <p>{message}</p>
+
+                    <hr>
+
+                    <p style="color:gray;font-size:12px;">
+                       This is an automated email. Please do not reply to this message.
+                    </p>
+                </body>
+                </html>
+                """
+
+                email = EmailMultiAlternatives(
+                    subject=subject,
+                    body=message,
+                    from_email="megicereni15@gmail.com",
+                    to=[subscriber],
+                )
+
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+
+            return redirect("home")
+
+    else:
+        form = NewsletterForm()
+
+    return render(request, "admin/newsletter.html", {"form": form})

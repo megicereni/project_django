@@ -32,7 +32,7 @@ class GeneralPackageForm(forms.ModelForm):
 class CustomPackageForm(forms.ModelForm):
     class Meta:
         model = CustomPackages
-        exclude = ['package','arrivalDate']
+        exclude = ['package', 'arrivalDate']
         widgets = {
             'departureDate': forms.DateInput(
                 attrs={
@@ -55,7 +55,6 @@ class CustomPackageForm(forms.ModelForm):
         if self.cleaned_data['price'] < 0:
             raise forms.ValidationError('Price cannot be less than 0')
         return self.cleaned_data['price']
-
 
 
 class ResponseMessageForm(forms.ModelForm):
@@ -158,6 +157,7 @@ class MessageForm(forms.ModelForm):
             }),
         }
 
+
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -173,8 +173,8 @@ class LoginForm(AuthenticationForm):
         })
     )
 
-class RegisterForm(UserCreationForm):
 
+class RegisterForm(UserCreationForm):
     first_name = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -237,3 +237,21 @@ class RegisterForm(UserCreationForm):
             'password1',
             'password2'
         ]
+
+
+class NewsletterForm(forms.Form):
+    subject = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Subject",
+        })
+    )
+
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={
+            "class": "form-control",
+            "placeholder": "Message",
+            "rows": 6,
+        })
+    )
