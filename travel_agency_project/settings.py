@@ -96,8 +96,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 # Kredencialet e Gmail
-EMAIL_HOST_USER = 'megicereni15@gmail.com'
-EMAIL_HOST_PASSWORD = 'vnqs xiaa tggj rznw'
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

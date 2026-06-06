@@ -1,3 +1,4 @@
+import os
 from datetime import timezone, timedelta
 
 from django.core.mail import send_mass_mail, EmailMultiAlternatives
@@ -649,7 +650,7 @@ def send_newsletter(request):
                 email = EmailMultiAlternatives(
                     subject=subject,
                     body=message,
-                    from_email="megicereni15@gmail.com",
+                    from_email=os.environ.get("EMAIL_HOST_USER"),
                     to=[subscriber],
                 )
 
