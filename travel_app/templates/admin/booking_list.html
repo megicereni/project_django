@@ -9,61 +9,61 @@
 
     {% if bookings %}
 
-        <div class="row">
+    <div class="row">
 
-            {% for b in bookings %}
+        {% for b in bookings %}
 
-                <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-4">
 
-                    <div class="card shadow-sm booking-card p-3">
+            <div class="card shadow-sm booking-card p-3">
 
-                        <h5>
-                            {% if b.client %}
-                                {{ b.client.name }}
-                            {% else %}
-                                Unknown Client
-                            {% endif %}
-                        </h5>
+                <h5>
+                    {% if b.client %}
+                    {{ b.client.name }}
+                    {% else %}
+                    Unknown Client
+                    {% endif %}
+                </h5>
 
-                        <p class="mb-1">
-                            <strong>Package:</strong>
-                            {% if b.package and b.package.package %}
-                                {{ b.package.package.title }}
-                            {% else %}
-                                No package
-                            {% endif %}
-                        </p>
+                <p class="mb-1">
+                    <strong>Package:</strong>
+                    {% if b.package and b.package.package %}
+                    {{ b.package.package.title }}
+                    {% else %}
+                    No package
+                    {% endif %}
+                </p>
 
-                        <p class="mb-1">
-                            <strong>People:</strong> {{ b.numberOfPeople }}
-                        </p>
+                <p class="mb-1">
+                    <strong>People:</strong> {{ b.numberOfPeople }}
+                </p>
 
-                        <p class="mb-1">
-                            <strong>Total:</strong> {{ b.totalPrice }}
-                        </p>
+                <p class="mb-1">
+                    <strong>Total:</strong> {{ b.totalPrice }}
+                </p>
 
-                        <p class="mb-1">
-                            <strong>Status:</strong> {{ b.get_status_display  }}
-                        </p>
+                <p class="mb-1">
+                    <strong>Status:</strong> {{ b.get_status_display }}
+                </p>
 
-                        <a href="{% url 'booking_detail' b.id %}"
-                           class="btn btn-primary btn-sm mt-3">
-                            View Details
-                        </a>
+                <a href="{% url 'booking_detail' b.id %}"
+                   class="btn btn-primary btn-sm mt-3">
+                    View Details
+                </a>
 
-                    </div>
-
-                </div>
-
-            {% endfor %}
+            </div>
 
         </div>
+
+        {% endfor %}
+
+    </div>
 
     {% else %}
 
-        <div class="alert alert-info">
-            No bookings available at the moment.
-        </div>
+    <div class="alert alert-info">
+        No bookings available at the moment.
+    </div>
 
     {% endif %}
 

@@ -41,12 +41,12 @@
     <div class="form-card">
 
         <h2 class="mb-3">
-    {% if form.instance.pk %}
-        Edit Custom Package
-    {% else %}
-        Create Custom Package
-    {% endif %}
-     </h2>
+            {% if form.instance.pk %}
+            Edit Custom Package
+            {% else %}
+            Create Custom Package
+            {% endif %}
+        </h2>
 
         <!-- GENERAL PACKAGE INFO -->
         <div class="package-box">
@@ -69,10 +69,10 @@
                         <div class="text-danger small">{{ form.departureDate.errors }}</div>
                     </div>
 
-                   <div class="col-md-6 mb-3">
-    <label class="form-label">Arrival Date</label>
-    <input type="date" id="arrivalDate" class="form-control" readonly>
-</div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Arrival Date</label>
+                        <input type="date" id="arrivalDate" class="form-control" readonly>
+                    </div>
 
                 </div>
 
@@ -98,12 +98,12 @@
                     </a>
 
                     <button type="submit" class="btn btn-success">
-    {% if form.instance.pk %}
-        Update Custom Package
-    {% else %}
-        Save Custom Package
-    {% endif %}
-                </button>
+                        {% if form.instance.pk %}
+                        Update Custom Package
+                        {% else %}
+                        Save Custom Package
+                        {% endif %}
+                    </button>
 
                 </div>
 
@@ -115,21 +115,21 @@
 
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const departure = document.getElementById('id_departureDate');
-    const arrival = document.getElementById('arrivalDate');
+    document.addEventListener('DOMContentLoaded', function() {
+        const departure = document.getElementById('id_departureDate');
+        const arrival = document.getElementById('arrivalDate');
 
-    const packageDays = {{ general.days }};
+        const packageDays = {{ general.days }};
 
-    departure.addEventListener('change', function() {
-        if (!this.value) return;
+        departure.addEventListener('change', function() {
+            if (!this.value) return;
 
-        let date = new Date(this.value);
-        date.setDate(date.getDate() + packageDays);
+            let date = new Date(this.value);
+            date.setDate(date.getDate() + packageDays);
 
-        arrival.value = date.toISOString().split('T')[0];
+            arrival.value = date.toISOString().split('T')[0];
+        });
     });
-});
 </script>
 </body>
 </html>
