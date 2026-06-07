@@ -52,7 +52,7 @@ class Booking(models.Model):
     totalPrice = models.IntegerField(default=0)
     status = models.CharField(choices=STATUS_CHOICES, max_length=20, default='pending')
 
-    def _str_(self):
+    def __str__(self):
         return self.package.package.title
 
 
