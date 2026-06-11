@@ -283,41 +283,58 @@ def cancel_booking(request, pk):
 
 
 
-
+# Kjo view shfaq listën e të gjitha paketave turistike që mund të shihen nga klientët.
 class ClientPackageListView(ListView):
+    # Modeli nga ku merren të dhënat
     model = GeneralPackages
+    # Template që do të shfaqë paketat
     template_name = "client/package_list.html"
+    # Emri që përdoret në template për listën e paketave
     context_object_name = "packages"
+    # Paketat shfaqen nga më e reja tek më e vjetra
     ordering = ["-id"]
 
+# Kjo view përdoret që klienti të krijojë një rezervim.
+# LoginRequiredMixin siguron që vetëm përdoruesit e loguar
+# mund të bëjnë rezervime.
 
 class ClientBookingCreateView(LoginRequiredMixin, CreateView):
+    # Modeli që do të ruhet në databazë
     model = Booking
+    # Forma që përdoret për rezervimin
     form_class = BookingForm
+    # Template që shfaq formularin
     template_name = "client/booking_form.html"
 
+    # Merr paketën specifike që klienti dëshiron të rezervojë.
+    # Nëse nuk ekziston, shfaqet gabimi 404.
     def dispatch(self, request, *args, **kwargs):
         self.package = get_object_or_404(CustomPackages, pk=kwargs["pk"])
         return super().dispatch(request, *args, **kwargs)
 
+    # Kjo metodë ekzekutohet kur forma plotësohet saktë.
     def form_valid(self, form):
+        # Merr numrin e personave nga forma.
         number_of_people = form.cleaned_data["numberOfPeople"]
-
+        # Kontrollon nëse numri i personave
+        # kalon limitin e paketës.
         if number_of_people > self.package.limitNumberOfPeople:
             form.add_error(
                 "numberOfPeople",
                 "Number of people exceeds the package limit."
             )
             return self.form_invalid(form)
-
+        # Krijon objektin Booking pa e ruajtur ende.
         booking = form.save(commit=False)
-        booking.client = self.request.user
-        booking.package = self.package
+        booking.client = self.request.user# Vendos klientin aktual.
+        booking.package = self.package #paketën e zgjedhur.
+        # Ruan numrin e personave.
         booking.numberOfPeople = number_of_people
+        # Llogarit çmimin total.
         booking.totalPrice = self.package.price * number_of_people
-        booking.status = "pending"
-        booking.save()
-
+        booking.status = "pending" # Statusi fillestar është pending.
+        booking.save()# Ruan rezervimin në databazë.
+        # Krijon pagesën për rezervimin.
         Payment.objects.create(
             booking=booking,
             amount=booking.totalPrice,
@@ -331,6 +348,7 @@ class ClientBookingCreateView(LoginRequiredMixin, CreateView):
 
         return redirect("my_bookings")
 
+    # Ekzekutohet kur forma ka gabime.
     def form_invalid(self, form):
         messages.error(
             self.request,
@@ -338,17 +356,19 @@ class ClientBookingCreateView(LoginRequiredMixin, CreateView):
         )
         return super().form_invalid(form)
 
+    # Dërgon paketën në template.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["package"] = self.package
         return context
 
-
+# Shfaq të gjitha rezervimet e klientit të loguar.
 class ClientBookingListView(LoginRequiredMixin, ListView):
     model = Booking
     template_name = "client/my_bookings.html"
     context_object_name = "bookings"
 
+    # Merr vetëm rezervimet e klientit aktual.
     def get_queryset(self):
         return Booking.objects.filter(
             client=self.request.user
@@ -357,12 +377,13 @@ class ClientBookingListView(LoginRequiredMixin, ListView):
             "package__package"
         ).order_by("-created_at")
 
-
+# Lejon klientin të anulojë rezervimin.
 class ClientBookingCancelView(LoginRequiredMixin, UpdateView):
     model = Booking
     fields = []
     template_name = "client/cancel_booking.html"
 
+    # Klienti mund të anulojë vetëm rezervimet e tij.
     def get_queryset(self):
         return Booking.objects.filter(
             client=self.request.user
@@ -407,7 +428,7 @@ class ClientBookingCancelView(LoginRequiredMixin, UpdateView):
 
         return redirect("my_bookings")
 
-
+# Kjo view shfaq detajet e një pakete të përgjithshme për klientin.
 class ClientPackageDetailView(DetailView):
     model = GeneralPackages
     template_name = "client/package_detail.html"
