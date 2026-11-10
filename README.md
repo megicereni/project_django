@@ -58,10 +58,10 @@ Make sure you have installed:
 - pip library
 - Git
 - PostGreSQL
-Setup
+# Setup
 1.Clone the repository
     ```bash
-git clone https://github.com/megicereni/project_django
+git clone https://github.com/megicereni/project_django ```
 2.Navigate to the project directory
   ```bash
 cd project_django
