@@ -79,16 +79,8 @@ python -m venv venv
 
 **4. Activate the virtual environment**
 
-On Windows:
-
 ```bash
 venv\Scripts\activate
-```
-
-On macOS/Linux:
-
-```bash
-source venv/bin/activate
 ```
 
 **5. Install dependencies from the requirements file**
@@ -114,21 +106,33 @@ After starting the server, open your browser and visit:
 http://127.0.0.1:8000
 
 
-5.Database Configuration
+5. Database Configuration
 This project uses PostgreSQL as its database management system.
-
 To configure the database connection, follow these steps:
--Create .env file in the root of project
--Create some of the environments variables(
+**1. Create a `.env` file**
+
+Create a `.env` file in the root directory of the project.
+
+**2. Add the database environment variables**
+
+```env
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=your_database_name
 DB_USER=your_username
 DB_PASSWORD=your_password
-)
--Replace the example values with your actual PostgreSQL database credentials
--Make sure the PostgreSQL server is running
--Apply the database migrations
+```
+
+**3. Configure your database**
+
+Replace the example values with your actual PostgreSQL database credentials.
+
+**4. Apply database migrations**
+
+```bash
+python manage.py migrate
+```
+
 
 
 
