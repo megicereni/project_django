@@ -1,5 +1,5 @@
 # Project
-### This project is a modern travel agency website based on some business logic using Python and Django framework
+### A modern and responsive Travel Agency Website developed using Python and Django. This project allows users to explore different travel destinations, browse available travel offers, book their favourite travel packages, and interact through reviews and messaging features.
 
 1. Features
 - User authentication and authorization -login and register
@@ -58,28 +58,60 @@ Make sure you have installed:
 - pip library
 - Git
 - PostGreSQL
-# Setup
-1.Clone the repository
-    ```bash
-git clone https://github.com/megicereni/project_django ```
-2.Navigate to the project directory
-  ```bash
+### Setup
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/megicereni/project_django
+```
+
+**2. Navigate to the project directory**
+
+```bash
 cd project_django
-3.Create a virtual environment
-   ```bash
-python -m venv venv 
-4.Activate the environment
-   ```bash
+```
+
+**3. Create a virtual environment**
+
+```bash
+python -m venv venv
+```
+
+**4. Activate the virtual environment**
+
+On Windows:
+
+```bash
 venv\Scripts\activate
-5.Install dependencies in the requirements file
-   ```bash
+```
+
+On macOS/Linux:
+
+```bash
+source venv/bin/activate
+```
+
+**5. Install dependencies from the requirements file**
+
+```bash
 pip install -r requirements.txt
-6.Apply database migrations
-   ```bash
+```
+
+**6. Apply database migrations**
+
+```bash
 python manage.py migrate
-7.Start the server
-   ```bash
+```
+
+**7. Start the development server**
+
+```bash
 python manage.py runserver
+```
+
+After starting the server, open your browser and visit:
+
+http://127.0.0.1:8000
 
 
 5.Database Configuration
